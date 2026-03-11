@@ -605,19 +605,63 @@ input[type="range"]::-webkit-slider-thumb:active {
         padding-left: 6px; 
     }
 
-    /* Keep the detailed table scrolling horizontally, but shrink the text so more fits */
+    /* --- NEW VERTICAL CARD TABLE FOR MOBILE --- */
     .detail-table-wrap { 
-        overflow-x: auto; 
-        -webkit-overflow-scrolling: touch; 
+        overflow-x: hidden; 
     }
-    .detail-table { 
-        font-size: 11px; 
-        min-width: 600px; /* Forces a scroll rather than unreadable squished text */
+    .detail-table, 
+    .detail-table tbody, 
+    .detail-table tr, 
+    .detail-table td { 
+        display: block; 
+        width: 100%; 
     }
-    .detail-table thead th, 
-    .detail-table tbody td { 
-        padding: 8px 6px; 
+    .detail-table thead { 
+        display: none; 
     }
+    .detail-table tr { 
+        background: var(--bg-card); 
+        border: 1px solid var(--border-default); 
+        border-radius: var(--radius-md); 
+        margin-bottom: 16px; 
+        padding: 8px 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .detail-table td { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        padding: 10px 4px; 
+        text-align: right;
+        border-bottom: 1px solid rgba(42, 48, 80, 0.4);
+    }
+    .detail-table td:last-child {
+        border-bottom: none;
+    }
+    .detail-table td::before {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .detail-table td:nth-of-type(1)::before { content: "SCF"; }
+    .detail-table td:nth-of-type(2)::before { content: "Revenue '24"; }
+    .detail-table td:nth-of-type(3)::before { content: "FCFE"; }
+    .detail-table td:nth-of-type(4)::before { content: "Derived AuA"; }
+    .detail-table td:nth-of-type(5)::before { content: "DCF Price"; }
+    .detail-table td:nth-of-type(6)::before { content: "P/AUM Price"; }
+    .detail-table td:nth-of-type(7)::before { content: "Blended EV"; }
+    .detail-table td:nth-of-type(8)::before { content: "EV/EBITDA"; }
+    .detail-table td:nth-of-type(9)::before { content: "Score"; }
+    .detail-table td:nth-of-type(1) {
+        background: var(--bg-selected);
+        border-radius: var(--radius-sm);
+        padding: 12px 8px;
+        margin-bottom: 4px;
+        border-bottom: none;
+    }
+    /* ------------------------------------------ */
 
     /* Sensitivity grid adjustments */
     .sensitivity-grid { 
