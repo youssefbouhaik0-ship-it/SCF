@@ -1,259 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCF Aggregation — Deal Simulator</title>
-    <meta name="description" content="Interactive deal simulator for SCF aggregation strategy — Giotto Cellino SIM">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SCF Deal Simulator — Giotto Cellino SIM</title>
+    <meta name="description" content="Interactive deal simulator for SCF aggregation strategy">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <div class="app-container">
+<div class="wrap">
 
-        <div class="header">
-            <div class="header-badge">
-                <span>Live Model</span>
-            </div>
-            <h1>SCF Deal Simulator</h1>
-            <p>Giotto Cellino SIM, An Interactive integration Model</p>
+    <div class="hdr">
+        <div class="badge">Live Model</div>
+        <h1>SCF Deal Simulator</h1>
+        <p>Giotto Cellino SIM — Aggregation Strategy Interactive Model</p>
+    </div>
+
+    <div class="grid2">
+        <div class="card">
+            <div class="card-t">📋 Select Target SCFs</div>
+            <div class="qbtns" id="qbtns"></div>
+            <div class="scf-grid" id="scf-grid"></div>
         </div>
 
-        <div class="main-grid">
-
-            <div class="card full-width">
-                <div class="card-title"><span class="icon"></span> Select Target SCFs</div>
-                <div class="quick-select">
-                    <button class="quick-btn" onclick="selectScenario('conservative')">Conservative (Top 3)</button>
-                    <button class="quick-btn" onclick="selectScenario('ambitious')">Ambitious (Top 5)</button>
-                    <button class="quick-btn" onclick="selectScenario('fullsweep')">Full Sweep (All 8)</button>
-                    <button class="quick-btn" onclick="selectScenario('vicenza')">Vicenza Cluster</button>
-                    <button class="quick-btn" onclick="selectScenario('none')">Clear All</button>
+        <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card" style="margin-bottom:0">
+                <div class="card-t">⚙️ Valuation Parameters</div>
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>Implied Fee Rate</span><span class="ctrl-v" id="v-fee">0.50%</span></div>
+                    <input type="range" id="s-fee" min="0.2" max="1" step="0.01" value="0.5" oninput="up()">
                 </div>
-                <div class="scf-grid" id="scf-grid">
-                    </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title"><span class="icon"></span> Valuation Assumptions</div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>Advisory Fee Rate</span>
-                        <span class="control-value" id="fee-rate-val">0.40%</span>
-                    </div>
-                    <input type="range" id="fee-rate" min="0.2" max="0.8" step="0.05" value="0.4"
-                        oninput="updateParams()">
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px">
-                        <span>0.20%</span><span>0.80%</span>
-                    </div>
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>AuM Acquisition Multiple</span><span class="ctrl-v" id="v-aum">1.50%</span></div>
+                    <input type="range" id="s-aum" min="0.5" max="4" step="0.05" value="1.5" oninput="up()">
                 </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>AuA Acquisition Multiple</span>
-                        <span class="control-value" id="aum-mult-val">1.00%</span>
-                    </div>
-                    <input type="range" id="aum-mult" min="0.5" max="2.5" step="0.1" value="1.0"
-                        oninput="updateParams()">
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px">
-                        <span>0.50%</span><span>2.50%</span>
-                    </div>
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>Cost of Equity (r)</span><span class="ctrl-v" id="v-disc">10.0%</span></div>
+                    <input type="range" id="s-disc" min="4" max="18" step="0.5" value="10" oninput="up()">
                 </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>Cost of Equity (r)</span>
-                        <span class="control-value" id="discount-rate-val">8.0%</span>
-                    </div>
-                    <input type="range" id="discount-rate" min="4" max="14" step="0.5" value="8"
-                        oninput="updateParams()">
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px">
-                        <span>4%</span><span>14%</span>
-                    </div>
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>Terminal Growth (g)</span><span class="ctrl-v" id="v-grow">3.0%</span></div>
+                    <input type="range" id="s-grow" min="0" max="5" step="0.5" value="3" oninput="up()">
                 </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>Terminal Growth Rate (g)</span>
-                        <span class="control-value" id="growth-rate-val">2.0%</span>
-                    </div>
-                    <input type="range" id="growth-rate" min="0" max="5" step="0.5" value="2" oninput="updateParams()">
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px">
-                        <span>0%</span><span>5%</span>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>DCF Weight (vs P/AUM)</span>
-                        <span class="control-value" id="dcf-weight-val">80%</span>
-                    </div>
-                    <input type="range" id="dcf-weight" min="0" max="100" step="5" value="80" oninput="updateParams()">
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px">
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>DCF Weight in Blend</span><span class="ctrl-v" id="v-dcfw">50%</span></div>
+                    <input type="range" id="s-dcfw" min="0" max="100" step="5" value="50" oninput="up()">
+                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);margin-top:4px">
                         <span>0% (all P/AUM)</span><span>100% (all DCF)</span>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-title"><span class="icon"></span> Recommendation Weights</div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>Financial Performance</span>
-                        <span class="control-value" id="w-fin-val">30%</span>
-                    </div>
-                    <input type="range" id="w-fin" min="0" max="60" step="5" value="30" oninput="updateParams()">
+            <div class="card" style="margin-bottom:0">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                    <div class="card-t" style="margin-bottom:0">🎯 Scoring Weights</div>
+                    <span id="tw" style="font-size:13px;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums">Σ = 100%</span>
                 </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>Valuation Attractiveness</span>
-                        <span class="control-value" id="w-val-val">30%</span>
-                    </div>
-                    <input type="range" id="w-val" min="0" max="60" step="5" value="30" oninput="updateParams()">
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>Financial</span><span class="ctrl-v" id="v-wf">30%</span></div>
+                    <input type="range" id="s-wf" min="0" max="50" step="5" value="30" oninput="up()">
                 </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>Strategic Fit</span>
-                        <span class="control-value" id="w-strat-val">30%</span>
-                    </div>
-                    <input type="range" id="w-strat" min="0" max="60" step="5" value="30" oninput="updateParams()">
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>Valuation</span><span class="ctrl-v" id="v-wv">25%</span></div>
+                    <input type="range" id="s-wv" min="0" max="50" step="5" value="25" oninput="up()">
                 </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>Responsiveness</span>
-                        <span class="control-value" id="w-resp-val">5%</span>
-                    </div>
-                    <input type="range" id="w-resp" min="0" max="20" step="5" value="5" oninput="updateParams()">
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>Strategic Fit</span><span class="ctrl-v" id="v-ws">25%</span></div>
+                    <input type="range" id="s-ws" min="0" max="50" step="5" value="25" oninput="up()">
                 </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>Convergence Willingness</span>
-                        <span class="control-value" id="w-conv-val">5%</span>
-                    </div>
-                    <input type="range" id="w-conv" min="0" max="20" step="5" value="5" oninput="updateParams()">
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>Responsiveness</span><span class="ctrl-v" id="v-wr">10%</span></div>
+                    <input type="range" id="s-wr" min="0" max="50" step="5" value="10" oninput="up()">
                 </div>
-
-                <div style="margin-top:12px;padding:10px;background:var(--bg-primary);border-radius:8px;font-size:12px;color:var(--text-muted)">
-                    Total Weight: <strong id="total-weight" style="color:var(--accent-teal)">100%</strong>
+                <div class="ctrl">
+                    <div class="ctrl-lbl"><span>Convergence</span><span class="ctrl-v" id="v-wc">10%</span></div>
+                    <input type="range" id="s-wc" min="0" max="50" step="5" value="10" oninput="up()">
                 </div>
             </div>
-
-            <div class="card full-width">
-                <div class="card-title"><span class="icon"></span> Deal Summary</div>
-
-                <div class="results-grid" id="results-grid">
-                    <div class="result-tile highlight">
-                        <div class="result-label">Total Acquisition Cost</div>
-                        <div class="result-value" id="total-cost">—</div>
-                        <div class="result-sub" id="total-cost-sub"></div>
-                    </div>
-                    <div class="result-tile">
-                        <div class="result-label">Combined AuA</div>
-                        <div class="result-value" id="total-aua">—</div>
-                        <div class="result-sub" id="total-aua-sub"></div>
-                    </div>
-                    <div class="result-tile">
-                        <div class="result-label">Combined Revenue</div>
-                        <div class="result-value" id="total-rev">—</div>
-                        <div class="result-sub" id="total-rev-sub"></div>
-                    </div>
-                    <div class="result-tile">
-                        <div class="result-label">Combined FCFE</div>
-                        <div class="result-value" id="total-fcfe">—</div>
-                        <div class="result-sub" id="total-fcfe-sub"></div>
-                    </div>
-                </div>
-
-                <div class="results-grid" style="margin-bottom:0">
-                    <div class="result-tile">
-                        <div class="result-label">Weighted EBITDA Margin</div>
-                        <div class="result-value" id="avg-margin">—</div>
-                    </div>
-                    <div class="result-tile">
-                        <div class="result-label">Cost per €1 AuA</div>
-                        <div class="result-value" id="cost-per-aua">—</div>
-                    </div>
-                    <div class="result-tile">
-                        <div class="result-label"># SCFs Selected</div>
-                        <div class="result-value" id="num-scfs">0</div>
-                    </div>
-                    <div class="result-tile">
-                        <div class="result-label"># Employees Acquired</div>
-                        <div class="result-value" id="total-emp">—</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card full-width">
-                <div class="card-title"><span class="icon"></span> Detailed Valuation Breakdown</div>
-                <div class="detail-table-wrap">
-                    <table class="detail-table" id="valuation-table">
-                        <thead>
-                            <tr>
-                                <th>SCF</th>
-                                <th>Revenue '24</th>
-                                <th>FCFE</th>
-                                <th>Derived AuA</th>
-                                <th>DCF Price</th>
-                                <th>P/AUM Price</th>
-                                <th>Blended EV</th>
-                                <th>EV/EBITDA</th>
-                                <th>Score</th>
-                            </tr>
-                        </thead>
-                        <tbody id="valuation-tbody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card full-width">
-                <div class="card-title"><span class="icon"></span> Dynamic Ranking (by Weighted Score)</div>
-                <div class="bar-chart" id="ranking-bars">
-                </div>
-            </div>
-
-            <div class="card full-width">
-                <div class="card-title"><span class="icon"></span> Sensitivity Analysis — Total Cost vs Fee Rate × Discount Rate</div>
-                <div class="sensitivity-grid" id="sensitivity-grid">
-                </div>
-            </div>
-
-        </div>
-
-        <div class="methodology">
-            <strong>Methodology:</strong>
-            DCF = FCFE / (r − g) &nbsp;|&nbsp;
-            P/AUM = (Revenue / Fee Rate) × AuA Multiple &nbsp;|&nbsp;
-            Blended EV = (DCF Weight × DCF) + ((1 − DCF Weight) × P/AUM) &nbsp;|&nbsp;
-            Sources: Orbis 2024, Joenväärä & Scherer (2017), Damodaran (2013), Moro Visconti (2020)
-        </div>
-
-        <div class="footer-note">
-            Management Consulting — University of Bologna — SCF Aggregation Strategy
         </div>
     </div>
 
-    <div class="app-container" style="padding-top:0">
-        <div class="card" id="qr-share-card" style="text-align:center;margin-top:0;padding:32px 24px">
-            <div class="card-title" style="justify-content:center"><span class="icon">📱</span> Scan to Open Simulator</div>
-            <p style="color:var(--text-secondary);font-size:14px;margin-bottom:20px">Point a phone camera at this QR code to launch the interactive simulator instantly.</p>
-            <div id="qr-img-wrap" style="display:inline-block;padding:16px;background:#fff;border-radius:16px">
-                <img id="qr-img" src="" alt="QR Code" style="display:block;width:180px;height:180px">
-            </div>
-            <p style="font-size:11px;color:var(--text-muted);margin-top:12px">URL: <span id="qr-url-label" style="color:var(--accent-teal)">loading…</span></p>
+    <div class="card">
+        <div class="card-t">📊 Deal Dashboard</div>
+        <div class="rtiles" id="tiles-top"></div>
+        <div class="rtiles" id="tiles-bot"></div>
+
+        <div class="card-t" style="margin-top:20px">🔢 Detailed Valuation Breakdown</div>
+        <div class="tbl-wrap">
+            <table class="tbl">
+                <thead><tr>
+                    <th>SCF</th><th>Revenue '24</th><th>FCFE</th><th>Derived AuA</th>
+                    <th>DCF Price</th><th>P/AUM Price</th><th>Blended EV</th><th>EV/EBITDA</th><th>Score</th>
+                </tr></thead>
+                <tbody id="vtbody"></tbody>
+            </table>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="card">
+        <div class="card-t">🏆 Weighted Score Ranking</div>
+        <div class="bars" id="bars"></div>
+    </div>
+
+    <div class="card">
+        <div class="card-t">🔥 Sensitivity Analysis</div>
+        <p style="font-size:11px;color:var(--txt3);margin-bottom:12px">Total blended cost by fee rate (columns) and discount rate (rows)</p>
+        <div class="sens-wrap"><div class="sens" id="sens"></div></div>
+    </div>
+
+    <div class="meth">
+        <strong>Methodology:</strong> Derived AuA = Revenue ÷ Fee Rate. P/AUM = AuA × Multiple.
+        DCF = FCFE ÷ (r − g). Blended EV = w<sub>DCF</sub> × DCF + (1−w<sub>DCF</sub>) × P/AUM.
+        Scoring uses weighted average across financial, valuation, strategic fit, responsiveness and convergence dimensions.
+        | Sources: Orbis 2024, Joenväärä &amp; Scherer (2017), Damodaran (2013), Moro Visconti (2020).
+    </div>
+
+    <div class="card qr-card" style="margin-top:16px">
+        <div class="card-t">📱 Scan to Open Simulator</div>
+        <p style="color:var(--txt2);font-size:13px;margin-bottom:8px">Point a phone camera at the QR code below</p>
+        <div class="qr-bg"><img id="qr-img" src="" alt="QR Code"></div>
+        <p style="font-size:10px;color:var(--txt3);margin-top:4px">URL: <span id="qr-url" style="color:var(--teal)">loading…</span></p>
+    </div>
+
+    <div class="ftr">SCF Aggregation Deal Simulator · Giotto Cellino SIM · Management Consulting — University of Bologna</div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
