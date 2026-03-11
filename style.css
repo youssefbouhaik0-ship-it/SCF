@@ -81,47 +81,19 @@ body::after {
     z-index: 1;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 32px 24px 80px;
+    /* Fluid padding: shrinks automatically on narrow screens */
+    padding: clamp(16px, 3vw, 32px) clamp(12px, 2vw, 24px) 80px;
 }
 
 /* Header */
 .header {
     text-align: center;
-    margin-bottom: 48px;
-}
-
-.header-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 16px;
-    background: var(--accent-blue-glow);
-    border: 1px solid rgba(59, 130, 246, 0.25);
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--accent-blue);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 16px;
-}
-
-.header-badge::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    background: var(--accent-blue);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    margin-bottom: clamp(24px, 5vw, 48px);
 }
 
 .header h1 {
-    font-size: 40px;
+    /* Fluid font size: scales smoothly between 24px and 40px */
+    font-size: clamp(24px, 5vw, 40px);
     font-weight: 800;
     background: var(--gradient-primary);
     -webkit-background-clip: text;
@@ -133,7 +105,7 @@ body::after {
 
 .header p {
     color: var(--text-secondary);
-    font-size: 16px;
+    font-size: clamp(14px, 2vw, 16px);
     font-weight: 400;
 }
 
@@ -141,7 +113,7 @@ body::after {
 .main-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    gap: clamp(16px, 3vw, 32px);
     margin-bottom: 32px;
 }
 
@@ -154,42 +126,42 @@ body::after {
     background: var(--gradient-card);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-lg);
-    padding: 24px;
+    /* Fluid padding inside the cards */
+    padding: clamp(16px, 3vw, 24px);
     box-shadow: var(--shadow-card);
     backdrop-filter: blur(12px);
     transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.card:hover {
-    border-color: rgba(59, 130, 246, 0.2);
-    box-shadow: var(--shadow-card), var(--shadow-glow-blue);
-}
-
-.card-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text-muted);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.card-title .icon {
-    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* ============================================================
    SCF SELECTION CARDS
    ============================================================ */
+/* Replace your existing .scf-grid */
 .scf-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 12px;
+    /* auto-fit ensures columns wrap, min(100%, 250px) ensures they shrink on tiny phones */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: clamp(8px, 2vw, 12px);
 }
 
+/* Replace your existing .results-grid */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+    gap: clamp(8px, 2vw, 16px);
+    margin-bottom: clamp(16px, 3vw, 24px);
+}
+
+/* Update the result values to scale down slightly */
+.result-value {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 800;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+}
 .scf-item {
     position: relative;
     background: var(--bg-secondary);
@@ -601,34 +573,65 @@ input[type="range"]::-webkit-slider-thumb:active {
    RESPONSIVE / MOBILE
    ============================================================ */
 @media (max-width: 1024px) {
-    .main-grid { grid-template-columns: 1fr; }
-    .results-grid { grid-template-columns: repeat(2, 1fr); }
-    .header h1 { font-size: 28px; }
-    .scf-grid { grid-template-columns: repeat(2, 1fr); }
+    .main-grid { 
+        grid-template-columns: 1fr; 
+    }
 }
 
 @media (max-width: 640px) {
-    .app-container { padding: 16px 12px 60px; overflow-x: hidden; }
-    .header { margin-bottom: 24px; }
-    .header h1 { font-size: 22px; letter-spacing: -0.3px; }
-    .header p { font-size: 13px; }
-    .card { padding: 14px; width: 100%; box-sizing: border-box; }
-    .scf-grid { grid-template-columns: 1fr; }
-    .quick-select { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .quick-btn { padding: 12px 8px; font-size: 12px; text-align: center; width: 100%; }
-    .quick-btn:last-child { grid-column: 1 / -1; }
-    .results-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .result-value { font-size: 18px; letter-spacing: -0.3px; }
-    .result-label { font-size: 10px; }
-    .result-sub { font-size: 10px; }
-    .bar-label { width: 80px; font-size: 10px; }
-    .bar-fill { font-size: 10px; padding-left: 6px; }
-    .detail-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .detail-table { font-size: 11px; min-width: 600px; }
-    .detail-table thead th, .detail-table tbody td { padding: 7px 6px; white-space: nowrap; }
-    .sensitivity-grid { overflow-x: auto; -webkit-overflow-scrolling: touch; font-size: 10px; }
-    .sens-cell { padding: 5px 4px; }
-    .sens-row-label { font-size: 10px; padding: 8px 6px; white-space: nowrap; }
+    /* Make quick-select buttons stack neatly on small phones */
+    .quick-select { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 8px; 
+    }
+    .quick-btn { 
+        padding: 10px 8px; 
+        font-size: 11px; 
+        text-align: center; 
+        width: 100%; 
+    }
+    .quick-btn:last-child { 
+        grid-column: 1 / -1; 
+    }
+
+    /* Bar chart text scaling */
+    .bar-label { 
+        width: 80px; 
+        font-size: 10px; 
+    }
+    .bar-fill { 
+        font-size: 10px; 
+        padding-left: 6px; 
+    }
+
+    /* Keep the detailed table scrolling horizontally, but shrink the text so more fits */
+    .detail-table-wrap { 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch; 
+    }
+    .detail-table { 
+        font-size: 11px; 
+        min-width: 600px; /* Forces a scroll rather than unreadable squished text */
+    }
+    .detail-table thead th, 
+    .detail-table tbody td { 
+        padding: 8px 6px; 
+    }
+
+    /* Sensitivity grid adjustments */
+    .sensitivity-grid { 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch; 
+        font-size: 10px; 
+    }
+    .sens-cell { 
+        padding: 6px 4px; 
+    }
+    .sens-row-label { 
+        font-size: 10px; 
+        padding: 8px 6px; 
+    }
 }
 
 /* Animate entry */
