@@ -1,714 +1,1166 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SCF Deal Simulator — Giotto Cellino SIM</title>
-    <meta name="description" content="Interactive deal simulator for SCF aggregation strategy">
+    <title>SCF Deal Simulator, Giotto Cellino SIM</title>
+    <meta name="description" content="An Interactive deal simulator for the SCF aggregation, under Giotto Cellino">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
-    /* ==========================================================
+        /* ==========================================================
        DESIGN TOKENS
        ========================================================== */
-    :root {
-        --bg:        #0a0e1a;
-        --bg2:       #111827;
-        --card:      #1a1f35;
-        --card-hover:#1e2440;
-        --card-sel:  #162040;
-        --bdr:       #2a3050;
-        --blue:      #3b82f6;
-        --teal:      #2dd4bf;
-        --gold:      #d4a843;
-        --green:     #22c55e;
-        --red:       #ef4444;
-        --txt:       #f1f5f9;
-        --txt2:      #94a3b8;
-        --txt3:      #64748b;
-        --font:      'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        --r:         12px;
-    }
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    html { -webkit-text-size-adjust: 100%; }
-    body {
-        font-family: var(--font);
-        background: var(--bg);
-        color: var(--txt);
-        min-height: 100vh;
-        overflow-x: hidden;
-        -webkit-font-smoothing: antialiased;
-    }
-    body::before {
-        content:''; position:fixed; top:-50%; right:-30%;
-        width:80vw; height:80vw;
-        background: radial-gradient(circle, rgba(59,130,246,.04) 0%, transparent 65%);
-        pointer-events:none; z-index:0;
-    }
+        :root {
+            --bg: #0a0e1a;
+            --bg2: #111827;
+            --card: #1a1f35;
+            --card-hover: #1e2440;
+            --card-sel: #162040;
+            --bdr: #2a3050;
+            --blue: #3b82f6;
+            --teal: #2dd4bf;
+            --gold: #d4a843;
+            --green: #22c55e;
+            --red: #ef4444;
+            --txt: #f1f5f9;
+            --txt2: #94a3b8;
+            --txt3: #64748b;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --r: 12px;
+        }
 
-    /* ==========================================================
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--txt);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -30%;
+            width: 80vw;
+            height: 80vw;
+            background: radial-gradient(circle, rgba(59, 130, 246, .04) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ==========================================================
        LAYOUT
        ========================================================== */
-    .wrap {
-        position:relative; z-index:1;
-        max-width:1400px; margin:0 auto;
-        padding: 16px 12px 80px;
-    }
-    @media(min-width:640px) { .wrap { padding: 32px 24px 80px; } }
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 16px 12px 80px;
+        }
 
-    /* Header */
-    .hdr { text-align:center; margin-bottom:24px; }
-    @media(min-width:640px) { .hdr { margin-bottom:48px; } }
-    .badge {
-        display:inline-flex; align-items:center; gap:8px;
-        padding:6px 16px; border-radius:999px;
-        background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.25);
-        font-size:11px; font-weight:700; color:var(--blue);
-        text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;
-    }
-    .badge::before {
-        content:''; width:6px; height:6px;
-        background:var(--blue); border-radius:50%;
-        animation: pulse 2s infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .hdr h1 {
-        font-size:24px; font-weight:800;
-        background:linear-gradient(135deg,#3b82f6,#2dd4bf);
-        -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-        background-clip:text; letter-spacing:-.5px; margin-bottom:6px;
-    }
-    @media(min-width:640px) { .hdr h1 { font-size:40px; } }
-    .hdr p { color:var(--txt2); font-size:13px; }
-    @media(min-width:640px) { .hdr p { font-size:16px; } }
+        @media(min-width:640px) {
+            .wrap {
+                padding: 32px 24px 80px;
+            }
+        }
 
-    /* Cards */
-    .card {
-        background: linear-gradient(145deg, rgba(26,31,53,.9), rgba(17,24,39,.95));
-        border:1px solid var(--bdr); border-radius:var(--r);
-        padding:16px; box-shadow:0 4px 24px rgba(0,0,0,.3);
-        backdrop-filter:blur(12px); margin-bottom:16px;
-        animation: fadeUp .5s ease both;
-    }
-    @media(min-width:640px) { .card { padding:24px; margin-bottom:24px; } }
-    .card-t {
-        font-size:16px; font-weight:700; color:var(--txt);
-        margin-bottom:16px;
-    }
+        /* Header */
+        .hdr {
+            text-align: center;
+            margin-bottom: 24px;
+        }
 
-    /* Main 2-col grid */
-    .grid2 {
-        display:grid; grid-template-columns:1fr;
-        gap:16px; margin-bottom:16px;
-    }
-    @media(min-width:1024px) { .grid2 { grid-template-columns:1fr 1fr; gap:24px; } }
+        @media(min-width:640px) {
+            .hdr {
+                margin-bottom: 48px;
+            }
+        }
 
-    /* ==========================================================
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, .12);
+            border: 1px solid rgba(59, 130, 246, .25);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--blue);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .4
+            }
+        }
+
+        .hdr h1 {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -.5px;
+            margin-bottom: 6px;
+        }
+
+        @media(min-width:640px) {
+            .hdr h1 {
+                font-size: 40px;
+            }
+        }
+
+        .hdr p {
+            color: var(--txt2);
+            font-size: 13px;
+        }
+
+        @media(min-width:640px) {
+            .hdr p {
+                font-size: 16px;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: linear-gradient(145deg, rgba(26, 31, 53, .9), rgba(17, 24, 39, .95));
+            border: 1px solid var(--bdr);
+            border-radius: var(--r);
+            padding: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, .3);
+            backdrop-filter: blur(12px);
+            margin-bottom: 16px;
+            animation: fadeUp .5s ease both;
+        }
+
+        @media(min-width:640px) {
+            .card {
+                padding: 24px;
+                margin-bottom: 24px;
+            }
+        }
+
+        .card-t {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--txt);
+            margin-bottom: 16px;
+        }
+
+        /* Main 2-col grid */
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        @media(min-width:1024px) {
+            .grid2 {
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+        }
+
+        /* ==========================================================
        QUICK-SELECT BUTTONS
        ========================================================== */
-    .qbtns {
-        display:grid; grid-template-columns:1fr 1fr;
-        gap:8px; margin-bottom:16px;
-    }
-    .qbtn {
-        padding:12px 8px; font-size:12px; font-weight:600;
-        background:var(--bg2); border:1px solid var(--bdr);
-        border-radius:8px; color:var(--txt2); cursor:pointer;
-        text-align:center; font-family:var(--font);
-        transition:all .2s; -webkit-tap-highlight-color:transparent;
-        touch-action:manipulation;
-    }
-    .qbtn:last-child { grid-column:1/-1; }
-    .qbtn:hover,.qbtn:active,.qbtn.active {
-        border-color:var(--blue); color:var(--blue);
-        background:rgba(59,130,246,.1);
-    }
-    @media(min-width:640px) {
-        .qbtns { display:flex; flex-wrap:wrap; gap:8px; }
-        .qbtn { padding:10px 18px; font-size:13px; }
-        .qbtn:last-child { grid-column:auto; }
-    }
+        .qbtns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
 
-    /* ==========================================================
+        .qbtn {
+            padding: 12px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--bg2);
+            border: 1px solid var(--bdr);
+            border-radius: 8px;
+            color: var(--txt2);
+            cursor: pointer;
+            text-align: center;
+            font-family: var(--font);
+            transition: all .2s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .qbtn:last-child {
+            grid-column: 1/-1;
+        }
+
+        .qbtn:hover,
+        .qbtn:active,
+        .qbtn.active {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: rgba(59, 130, 246, .1);
+        }
+
+        @media(min-width:640px) {
+            .qbtns {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .qbtn {
+                padding: 10px 18px;
+                font-size: 13px;
+            }
+
+            .qbtn:last-child {
+                grid-column: auto;
+            }
+        }
+
+        /* ==========================================================
        SCF CARDS GRID
        ========================================================== */
-    .scf-grid {
-        display:grid; grid-template-columns:1fr; gap:10px;
-    }
-    @media(min-width:640px) { .scf-grid { grid-template-columns:1fr 1fr; } }
-    @media(min-width:1400px) { .scf-grid { grid-template-columns:1fr 1fr 1fr; } }
+        .scf-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
 
-    .scf {
-        position:relative; background:var(--bg2);
-        border:1.5px solid var(--bdr); border-radius:10px;
-        padding:14px; cursor:pointer; user-select:none;
-        transition:all .2s; -webkit-tap-highlight-color:transparent;
-    }
-    .scf:hover { background:var(--card-hover); border-color:var(--blue); }
-    .scf:active { transform:scale(.98); }
-    .scf.sel {
-        background:var(--card-sel); border-color:var(--teal);
-        box-shadow:0 0 20px rgba(45,212,191,.12);
-    }
-    .scf .chk {
-        position:absolute; top:10px; right:10px;
-        width:22px; height:22px; background:var(--teal);
-        border-radius:50%; display:none;
-        align-items:center; justify-content:center;
-        font-size:12px; font-weight:700; color:var(--bg);
-    }
-    .scf.sel .chk { display:flex; }
-    .scf .tier {
-        display:inline-block; padding:2px 8px; border-radius:4px;
-        font-size:10px; font-weight:700; text-transform:uppercase;
-        letter-spacing:.5px; margin-bottom:6px;
-    }
-    .t1 { background:rgba(34,197,94,.15); color:var(--green); }
-    .t2 { background:rgba(59,130,246,.15); color:var(--blue); }
-    .t3 { background:rgba(212,168,67,.15); color:var(--gold); }
-    .scf .nm { font-size:15px; font-weight:700; margin-bottom:3px; }
-    .scf .loc { font-size:12px; color:var(--txt3); margin-bottom:10px; }
-    .scf .metrics { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-    .scf .ml { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.8px; color:var(--txt3); }
-    .scf .mv { font-size:14px; font-weight:600; color:var(--txt2); }
-    .pos { color:var(--green)!important; }
-    .neg { color:var(--red)!important; }
+        @media(min-width:640px) {
+            .scf-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
 
-    /* ==========================================================
+        @media(min-width:1400px) {
+            .scf-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        .scf {
+            position: relative;
+            background: var(--bg2);
+            border: 1.5px solid var(--bdr);
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: all .2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .scf:hover {
+            background: var(--card-hover);
+            border-color: var(--blue);
+        }
+
+        .scf:active {
+            transform: scale(.98);
+        }
+
+        .scf.sel {
+            background: var(--card-sel);
+            border-color: var(--teal);
+            box-shadow: 0 0 20px rgba(45, 212, 191, .12);
+        }
+
+        .scf .chk {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 22px;
+            height: 22px;
+            background: var(--teal);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--bg);
+        }
+
+        .scf.sel .chk {
+            display: flex;
+        }
+
+        .scf .tier {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+
+        .t1 {
+            background: rgba(34, 197, 94, .15);
+            color: var(--green);
+        }
+
+        .t2 {
+            background: rgba(59, 130, 246, .15);
+            color: var(--blue);
+        }
+
+        .t3 {
+            background: rgba(212, 168, 67, .15);
+            color: var(--gold);
+        }
+
+        .scf .nm {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .scf .loc {
+            font-size: 12px;
+            color: var(--txt3);
+            margin-bottom: 10px;
+        }
+
+        .scf .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .scf .ml {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--txt3);
+        }
+
+        .scf .mv {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--txt2);
+        }
+
+        .pos {
+            color: var(--green) !important;
+        }
+
+        .neg {
+            color: var(--red) !important;
+        }
+
+        /* ==========================================================
        SLIDERS
        ========================================================== */
-    .ctrl { margin-bottom:18px; }
-    .ctrl:last-child { margin-bottom:0; }
-    .ctrl-lbl {
-        display:flex; justify-content:space-between;
-        align-items:center; margin-bottom:6px;
-    }
-    .ctrl-lbl span:first-child { font-size:13px; font-weight:500; color:var(--txt2); }
-    .ctrl-v { font-size:14px; font-weight:700; color:var(--teal); font-variant-numeric:tabular-nums; }
-    input[type=range] {
-        -webkit-appearance:none; appearance:none;
-        width:100%; height:8px;
-        background:var(--bdr); border-radius:4px;
-        outline:none; cursor:pointer; touch-action:pan-x;
-    }
-    input[type=range]::-webkit-slider-thumb {
-        -webkit-appearance:none; appearance:none;
-        width:28px; height:28px;
-        background:var(--teal); border-radius:50%;
-        box-shadow:0 0 12px rgba(45,212,191,.4);
-    }
-    input[type=range]::-moz-range-thumb {
-        width:28px; height:28px;
-        background:var(--teal); border-radius:50%;
-        box-shadow:0 0 12px rgba(45,212,191,.4); border:none;
-    }
-    .wt-total {
-        margin-top:10px; padding:8px 12px;
-        background:var(--bg); border-radius:8px;
-        font-size:12px; color:var(--txt3);
-    }
-    .wt-total strong { font-variant-numeric:tabular-nums; }
+        .ctrl {
+            margin-bottom: 18px;
+        }
 
-    /* ==========================================================
+        .ctrl:last-child {
+            margin-bottom: 0;
+        }
+
+        .ctrl-lbl {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .ctrl-lbl span:first-child {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--txt2);
+        }
+
+        .ctrl-v {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--teal);
+            font-variant-numeric: tabular-nums;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: var(--bdr);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            touch-action: pan-x;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            background: var(--teal);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(45, 212, 191, .4);
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            background: var(--teal);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(45, 212, 191, .4);
+            border: none;
+        }
+
+        .wt-total {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--txt3);
+        }
+
+        .wt-total strong {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ==========================================================
        RESULT TILES
        ========================================================== */
-    .rtiles {
-        display:grid; grid-template-columns:1fr 1fr;
-        gap:8px; margin-bottom:12px;
-    }
-    @media(min-width:640px) { .rtiles { grid-template-columns:repeat(4,1fr); gap:12px; } }
-    .rt {
-        background:var(--bg2); border:1px solid var(--bdr);
-        border-radius:10px; padding:14px 10px; text-align:center;
-    }
-    .rt.hl { border-color:var(--gold); box-shadow:0 0 20px rgba(212,168,67,.15); }
-    .rt .rl { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--txt3); margin-bottom:6px; }
-    .rt .rv {
-        font-size:18px; font-weight:800; color:var(--txt);
-        font-variant-numeric:tabular-nums; letter-spacing:-.3px;
-    }
-    @media(min-width:640px) { .rt .rv { font-size:24px; } }
-    .rt .rs { font-size:10px; color:var(--txt3); margin-top:3px; }
+        .rtiles {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
 
-    /* ==========================================================
+        @media(min-width:640px) {
+            .rtiles {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+        }
+
+        .rt {
+            background: var(--bg2);
+            border: 1px solid var(--bdr);
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+
+        .rt.hl {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 168, 67, .15);
+        }
+
+        .rt .rl {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--txt3);
+            margin-bottom: 6px;
+        }
+
+        .rt .rv {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--txt);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -.3px;
+        }
+
+        @media(min-width:640px) {
+            .rt .rv {
+                font-size: 24px;
+            }
+        }
+
+        .rt .rs {
+            font-size: 10px;
+            color: var(--txt3);
+            margin-top: 3px;
+        }
+
+        /* ==========================================================
        VALUATION TABLE
        ========================================================== */
-    .tbl-wrap {
-        overflow-x:auto; -webkit-overflow-scrolling:touch;
-        margin-top:12px;
-    }
-    .tbl {
-        width:100%; border-collapse:separate; border-spacing:0;
-        font-size:12px; min-width:650px;
-    }
-    .tbl thead th {
-        position:sticky; top:0; background:var(--card);
-        font-size:10px; font-weight:700; text-transform:uppercase;
-        letter-spacing:1px; color:var(--txt3);
-        padding:8px 8px; text-align:right;
-        border-bottom:1px solid var(--bdr); white-space:nowrap;
-    }
-    .tbl thead th:first-child { text-align:left; }
-    .tbl tbody td {
-        padding:8px 8px; text-align:right; color:var(--txt2);
-        border-bottom:1px solid rgba(42,48,80,.4);
-        font-variant-numeric:tabular-nums; white-space:nowrap;
-    }
-    .tbl tbody td:first-child { text-align:left; font-weight:600; color:var(--txt); }
-    .tbl tbody tr:hover { background:rgba(59,130,246,.05); }
-    .tbl tbody tr.sel-row td:first-child { border-left:3px solid var(--teal); }
+        .tbl-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 12px;
+        }
 
-    /* ==========================================================
+        .tbl {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 12px;
+            min-width: 650px;
+        }
+
+        .tbl thead th {
+            position: sticky;
+            top: 0;
+            background: var(--card);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--txt3);
+            padding: 8px 8px;
+            text-align: right;
+            border-bottom: 1px solid var(--bdr);
+            white-space: nowrap;
+        }
+
+        .tbl thead th:first-child {
+            text-align: left;
+        }
+
+        .tbl tbody td {
+            padding: 8px 8px;
+            text-align: right;
+            color: var(--txt2);
+            border-bottom: 1px solid rgba(42, 48, 80, .4);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .tbl tbody td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: var(--txt);
+        }
+
+        .tbl tbody tr:hover {
+            background: rgba(59, 130, 246, .05);
+        }
+
+        .tbl tbody tr.sel-row td:first-child {
+            border-left: 3px solid var(--teal);
+        }
+
+        /* ==========================================================
        BAR CHART
        ========================================================== */
-    .bars { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
-    .bar-row { display:flex; align-items:center; gap:8px; }
-    .bar-name {
-        width:80px; font-size:11px; font-weight:600;
-        color:var(--txt2); text-align:right; flex-shrink:0;
-        overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    }
-    @media(min-width:640px) { .bar-name { width:140px; font-size:12px; } }
-    .bar-track {
-        flex:1; height:28px; background:var(--bg);
-        border-radius:6px; overflow:hidden;
-    }
-    .bar-fill {
-        height:100%; border-radius:6px;
-        display:flex; align-items:center;
-        padding-left:8px; font-size:11px;
-        font-weight:700; color:#fff; white-space:nowrap;
-        transition:width .5s cubic-bezier(.25,.46,.45,.94);
-        min-width:fit-content;
-    }
+        .bars {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
 
-    /* ==========================================================
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bar-name {
+            width: 80px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--txt2);
+            text-align: right;
+            flex-shrink: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        @media(min-width:640px) {
+            .bar-name {
+                width: 140px;
+                font-size: 12px;
+            }
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 28px;
+            background: var(--bg);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            transition: width .5s cubic-bezier(.25, .46, .45, .94);
+            min-width: fit-content;
+        }
+
+        /* ==========================================================
        SENSITIVITY HEATMAP
        ========================================================== */
-    .sens-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    .sens {
-        display:grid; gap:2px; font-size:11px;
-        min-width:400px;
-    }
-    .sh {
-        font-weight:700; color:var(--txt3); padding:8px;
-        text-align:center; font-size:10px; text-transform:uppercase;
-    }
-    .srl {
-        font-weight:600; color:var(--txt2);
-        padding:8px 10px; display:flex; align-items:center;
-        white-space:nowrap; font-size:11px;
-    }
-    .sc {
-        padding:6px; text-align:center; font-weight:600;
-        font-variant-numeric:tabular-nums; border-radius:4px;
-        font-size:11px;
-    }
-    .sc.base { outline:2px solid var(--teal); font-weight:800; }
+        .sens-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-    /* Methodology */
-    .meth {
-        margin-top:16px; padding:16px 20px;
-        background:var(--bg2); border-left:3px solid var(--blue);
-        border-radius:0 8px 8px 0; font-size:12px;
-        color:var(--txt2); line-height:1.7;
-    }
-    .meth strong { color:var(--txt); }
+        .sens {
+            display: grid;
+            gap: 2px;
+            font-size: 11px;
+            min-width: 400px;
+        }
 
-    /* QR */
-    .qr-card { text-align:center; padding:24px 16px; }
-    .qr-card img { display:block; width:160px; height:160px; margin:0 auto; }
-    .qr-bg { display:inline-block; padding:14px; background:#fff; border-radius:14px; margin:12px 0; }
+        .sh {
+            font-weight: 700;
+            color: var(--txt3);
+            padding: 8px;
+            text-align: center;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
 
-    /* Footer */
-    .ftr {
-        text-align:center; margin-top:24px; padding-top:16px;
-        border-top:1px solid var(--bdr); font-size:11px; color:var(--txt3);
-    }
+        .srl {
+            font-weight: 600;
+            color: var(--txt2);
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            font-size: 11px;
+        }
 
-    /* Animations */
-    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-    .card:nth-child(2) { animation-delay:.08s; }
-    .card:nth-child(3) { animation-delay:.16s; }
-    .card:nth-child(4) { animation-delay:.24s; }
+        .sc {
+            padding: 6px;
+            text-align: center;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .sc.base {
+            outline: 2px solid var(--teal);
+            font-weight: 800;
+        }
+
+        /* Methodology */
+        .meth {
+            margin-top: 16px;
+            padding: 16px 20px;
+            background: var(--bg2);
+            border-left: 3px solid var(--blue);
+            border-radius: 0 8px 8px 0;
+            font-size: 12px;
+            color: var(--txt2);
+            line-height: 1.7;
+        }
+
+        .meth strong {
+            color: var(--txt);
+        }
+
+        /* QR */
+        .qr-card {
+            text-align: center;
+            padding: 24px 16px;
+        }
+
+        .qr-card img {
+            display: block;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto;
+        }
+
+        .qr-bg {
+            display: inline-block;
+            padding: 14px;
+            background: #fff;
+            border-radius: 14px;
+            margin: 12px 0;
+        }
+
+        /* Footer */
+        .ftr {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--bdr);
+            font-size: 11px;
+            color: var(--txt3);
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .card:nth-child(2) {
+            animation-delay: .08s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: .16s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: .24s;
+        }
     </style>
 </head>
+
 <body>
-<div class="wrap">
+    <div class="wrap">
 
-    <!-- HEADER -->
-    <div class="hdr">
-        <div class="badge">Live Model</div>
-        <h1>SCF Deal Simulator</h1>
-        <p>Giotto Cellino SIM — Aggregation Strategy Interactive Model</p>
-    </div>
-
-    <div class="grid2">
-        <!-- ========== LEFT: SCF SELECTION ========== -->
-        <div class="card">
-            <div class="card-t"> Select Target SCFs</div>
-            <div class="qbtns" id="qbtns"></div>
-            <div class="scf-grid" id="scf-grid"></div>
+        <!-- HEADER -->
+        <div class="hdr">
+            <div class="badge">Live Model</div>
+            <h1>SCF Deal Simulator</h1>
+            <p>Giotto Cellino SIM — Aggregation Strategy Interactive Model</p>
         </div>
 
-        <!-- ========== RIGHT: PARAMETERS ========== -->
-        <div style="display:flex;flex-direction:column;gap:16px">
-            <!-- Valuation Assumptions -->
-            <div class="card" style="margin-bottom:0">
-                <div class="card-t"> Valuation Parameters</div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>Implied Fee Rate</span><span class="ctrl-v" id="v-fee">0.50%</span></div>
-                    <input type="range" id="s-fee" min="0.2" max="1" step="0.01" value="0.5" oninput="up()">
+        <div class="grid2">
+            <!-- ========== LEFT: SCF SELECTION ========== -->
+            <div class="card">
+                <div class="card-t">📋 Select Target SCFs</div>
+                <div class="qbtns" id="qbtns"></div>
+                <div class="scf-grid" id="scf-grid"></div>
+            </div>
+
+            <!-- ========== RIGHT: PARAMETERS ========== -->
+            <div style="display:flex;flex-direction:column;gap:16px">
+                <!-- Valuation Assumptions -->
+                <div class="card" style="margin-bottom:0">
+                    <div class="card-t">⚙️ Valuation Parameters</div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>Implied Fee Rate</span><span class="ctrl-v" id="v-fee">0.50%</span>
+                        </div>
+                        <input type="range" id="s-fee" min="0.2" max="1" step="0.01" value="0.5" oninput="up()">
+                    </div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>AuM Acquisition Multiple</span><span class="ctrl-v"
+                                id="v-aum">1.50%</span></div>
+                        <input type="range" id="s-aum" min="0.5" max="4" step="0.05" value="1.5" oninput="up()">
+                    </div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>Cost of Equity (r)</span><span class="ctrl-v"
+                                id="v-disc">10.0%</span></div>
+                        <input type="range" id="s-disc" min="4" max="18" step="0.5" value="10" oninput="up()">
+                    </div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>Terminal Growth (g)</span><span class="ctrl-v"
+                                id="v-grow">3.0%</span></div>
+                        <input type="range" id="s-grow" min="0" max="5" step="0.5" value="3" oninput="up()">
+                    </div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>DCF Weight in Blend</span><span class="ctrl-v"
+                                id="v-dcfw">50%</span></div>
+                        <input type="range" id="s-dcfw" min="0" max="100" step="5" value="50" oninput="up()">
+                        <div
+                            style="display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);margin-top:4px">
+                            <span>0% (all P/AUM)</span><span>100% (all DCF)</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>AuM Acquisition Multiple</span><span class="ctrl-v" id="v-aum">1.50%</span></div>
-                    <input type="range" id="s-aum" min="0.5" max="4" step="0.05" value="1.5" oninput="up()">
-                </div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>Cost of Equity (r)</span><span class="ctrl-v" id="v-disc">10.0%</span></div>
-                    <input type="range" id="s-disc" min="4" max="18" step="0.5" value="10" oninput="up()">
-                </div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>Terminal Growth (g)</span><span class="ctrl-v" id="v-grow">3.0%</span></div>
-                    <input type="range" id="s-grow" min="0" max="5" step="0.5" value="3" oninput="up()">
-                </div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>DCF Weight in Blend</span><span class="ctrl-v" id="v-dcfw">50%</span></div>
-                    <input type="range" id="s-dcfw" min="0" max="100" step="5" value="50" oninput="up()">
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);margin-top:4px">
-                        <span>0% (all P/AUM)</span><span>100% (all DCF)</span>
+
+                <!-- Scoring Weights -->
+                <div class="card" style="margin-bottom:0">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                        <div class="card-t" style="margin-bottom:0">🎯 Scoring Weights</div>
+                        <span id="tw"
+                            style="font-size:13px;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums">Σ
+                            = 100%</span>
+                    </div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>Financial</span><span class="ctrl-v" id="v-wf">30%</span></div>
+                        <input type="range" id="s-wf" min="0" max="50" step="5" value="30" oninput="up()">
+                    </div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>Valuation</span><span class="ctrl-v" id="v-wv">30%</span></div>
+                        <input type="range" id="s-wv" min="0" max="50" step="5" value="30" oninput="up()">
+                    </div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>Strategic Fit</span><span class="ctrl-v" id="v-ws">30%</span></div>
+                        <input type="range" id="s-ws" min="0" max="50" step="5" value="30" oninput="up()">
+                    </div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>Responsiveness</span><span class="ctrl-v" id="v-wr">5%</span></div>
+                        <input type="range" id="s-wr" min="0" max="50" step="5" value="5" oninput="up()">
+                    </div>
+                    <div class="ctrl">
+                        <div class="ctrl-lbl"><span>Convergence</span><span class="ctrl-v" id="v-wc">5%</span></div>
+                        <input type="range" id="s-wc" min="0" max="50" step="5" value="5" oninput="up()">
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Scoring Weights -->
-            <div class="card" style="margin-bottom:0">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-                    <div class="card-t" style="margin-bottom:0"> Scoring Weights</div>
-                    <span id="tw" style="font-size:13px;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums">Σ = 100%</span>
-                </div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>Financial</span><span class="ctrl-v" id="v-wf">30%</span></div>
-                    <input type="range" id="s-wf" min="0" max="50" step="5" value="30" oninput="up()">
-                </div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>Valuation</span><span class="ctrl-v" id="v-wv">25%</span></div>
-                    <input type="range" id="s-wv" min="0" max="50" step="5" value="25" oninput="up()">
-                </div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>Strategic Fit</span><span class="ctrl-v" id="v-ws">25%</span></div>
-                    <input type="range" id="s-ws" min="0" max="50" step="5" value="25" oninput="up()">
-                </div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>Responsiveness</span><span class="ctrl-v" id="v-wr">10%</span></div>
-                    <input type="range" id="s-wr" min="0" max="50" step="5" value="10" oninput="up()">
-                </div>
-                <div class="ctrl">
-                    <div class="ctrl-lbl"><span>Convergence</span><span class="ctrl-v" id="v-wc">10%</span></div>
-                    <input type="range" id="s-wc" min="0" max="50" step="5" value="10" oninput="up()">
-                </div>
+        <!-- ========== DEAL DASHBOARD ========== -->
+        <div class="card">
+            <div class="card-t">📊 Deal Dashboard</div>
+            <div class="rtiles" id="tiles-top"></div>
+            <div class="rtiles" id="tiles-bot"></div>
+
+            <!-- Valuation Table -->
+            <div class="card-t" style="margin-top:20px">🔢 Detailed Valuation Breakdown</div>
+            <div class="tbl-wrap">
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th>SCF</th>
+                            <th>Revenue '24</th>
+                            <th>FCFE</th>
+                            <th>Derived AuA</th>
+                            <th>DCF Price</th>
+                            <th>P/AUM Price</th>
+                            <th>Blended EV</th>
+                            <th>EV/EBITDA</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vtbody"></tbody>
+                </table>
             </div>
         </div>
-    </div>
 
-    <!-- ========== DEAL DASHBOARD ========== -->
-    <div class="card">
-        <div class="card-t"> Deal Dashboard</div>
-        <div class="rtiles" id="tiles-top"></div>
-        <div class="rtiles" id="tiles-bot"></div>
-
-        <!-- Valuation Table -->
-        <div class="card-t" style="margin-top:20px"> Detailed Valuation Breakdown</div>
-        <div class="tbl-wrap">
-            <table class="tbl">
-                <thead><tr>
-                    <th>SCF</th><th>Revenue '24</th><th>FCFE</th><th>Derived AuA</th>
-                    <th>DCF Price</th><th>P/AUM Price</th><th>Blended EV</th><th>EV/EBITDA</th><th>Score</th>
-                </tr></thead>
-                <tbody id="vtbody"></tbody>
-            </table>
+        <!-- ========== RANKING ========== -->
+        <div class="card">
+            <div class="card-t">🏆 Weighted Score Ranking</div>
+            <div class="bars" id="bars"></div>
         </div>
+
+        <!-- ========== SENSITIVITY ========== -->
+        <div class="card">
+            <div class="card-t">🔥 Sensitivity Analysis</div>
+            <p style="font-size:11px;color:var(--txt3);margin-bottom:12px">Total blended cost by fee rate (columns) and
+                discount rate (rows)</p>
+            <div class="sens-wrap">
+                <div class="sens" id="sens"></div>
+            </div>
+        </div>
+
+        <!-- Methodology -->
+        <div class="meth">
+            <strong>Methodology:</strong> Derived AuA = Revenue ÷ Fee Rate. P/AUM = AuA × Multiple.
+            DCF = FCFE ÷ (r − g). Blended EV = w<sub>DCF</sub> × DCF + (1−w<sub>DCF</sub>) × P/AUM.
+            Scoring uses weighted average across financial, valuation, strategic fit, responsiveness and convergence
+            dimensions.
+            | Sources: Orbis 2024, Joenväärä &amp; Scherer (2017), Damodaran (2013), Moro Visconti (2020).
+        </div>
+
+        <!-- QR Code -->
+        <div class="card qr-card" style="margin-top:16px">
+            <div class="card-t">📱 Scan to Open Simulator</div>
+            <p style="color:var(--txt2);font-size:13px;margin-bottom:8px">Point a phone camera at the QR code below</p>
+            <div class="qr-bg"><img id="qr-img" src="" alt="QR Code"></div>
+            <p style="font-size:10px;color:var(--txt3);margin-top:4px">URL: <span id="qr-url"
+                    style="color:var(--teal)">loading…</span></p>
+        </div>
+
+        <div class="ftr">SCF Aggregation Deal Simulator · Giotto Cellino SIM · Management Consulting — University of
+            Bologna</div>
     </div>
 
-    <!-- ========== RANKING ========== -->
-    <div class="card">
-        <div class="card-t"> Weighted Score Ranking</div>
-        <div class="bars" id="bars"></div>
-    </div>
+    <script>
+        /* ==================================================================
+           DATA — Edit SCF information here.
+           Each object = one SCF target. Add/remove as needed.
+           ================================================================== */
+        const D = [
+            { id: "tokos", name: "Tokos SCF", city: "TO", region: "Turin, Piedmont", tier: 1, emp: 23, rev: 1665292, ebitda: 542000, fcfe: 407310, cash: 354000, cagr: 0.45, fo: "Full MFO", dist: 36, sF: 5, sV: 3, sS: 5, sR: 0, sC: 0 },
+            { id: "stratos", name: "Stratos SCF", city: "UD", region: "Udine, Friuli-Venezia Giulia", tier: 1, emp: 4, rev: 468329, ebitda: 278000, fcfe: 279383, cash: 340000, cagr: 1.50, fo: "Full FO", dist: 154, sF: 5, sV: 4, sS: 5, sR: 5, sC: 5 },
+            { id: "absolut", name: "A.B. Solute SCF", city: "VI", region: "Vicenza, Veneto", tier: 1, emp: 5, rev: 549593, ebitda: 242000, fcfe: 183184, cash: 418000, cagr: -0.07, fo: "Full FO", dist: 40, sF: 4, sV: 5, sS: 3.5, sR: 0, sC: 0 },
+            { id: "81scf", name: "81 SCF", city: "VI", region: "Vicenza, Veneto", tier: 1, emp: 4, rev: 464888, ebitda: 166000, fcfe: 136310, cash: 38000, cagr: 0.18, fo: "Full FO", dist: 34, sF: 4, sV: 4, sS: 5, sR: 0, sC: 0 },
+            { id: "foitalia", name: "Family Office Italia", city: "RN", region: "Rimini, Emilia-Romagna", tier: 2, emp: 9, rev: 384647, ebitda: 71000, fcfe: 55764, cash: 78000, cagr: 0.36, fo: "Full FO", dist: 236, sF: 4, sV: 4, sS: 3.5, sR: 0, sC: 0 },
+            { id: "csfo", name: "CS Family Office", city: "LC", region: "Lecco, Lombardy", tier: 2, emp: 3, rev: 304252, ebitda: 43000, fcfe: 26567, cash: 24000, cagr: 0.28, fo: "Full FO", dist: 228, sF: 3, sV: 5, sS: 3.5, sR: 0, sC: 0 },
+            { id: "veneris", name: "Veneris FO", city: "TV", region: "Spresiano, Treviso", tier: 2, emp: 3, rev: 204614, ebitda: 40000, fcfe: 27906, cash: 25000, cagr: 0.31, fo: "Full FO", dist: 72, sF: 3, sV: 5, sS: 4.5, sR: 0, sC: 0 },
+            { id: "secolare", name: "Secolare SCF", city: "MI", region: "Milan, Lombardy", tier: 3, emp: 3, rev: 593717, ebitda: 74000, fcfe: 61540, cash: 109000, cagr: 10.12, fo: "Partial FO", dist: 233, sF: 3, sV: 4, sS: 2.5, sR: 0, sC: 0 },
+            { id: "mpfo", name: "MP Family Office", city: "BO", region: "Bologna, Emilia-Romagna", tier: 3, emp: 1, rev: 259736, ebitda: 14000, fcfe: 0, cash: 9000, cagr: 2.07, fo: "Full FO", dist: 130, sF: 2, sV: 5, sS: 4, sR: 0, sC: 0 },
+            { id: "rinascimento", name: "Rinascimento SCF", city: "MI", region: "Milan, Lombardy", tier: 3, emp: 2, rev: 125105, ebitda: 26000, fcfe: 20447, cash: 95000, cagr: null, fo: "Partial FO", dist: 243, sF: 2, sV: 5, sS: 2.5, sR: 0, sC: 0 },
+        ];
 
-    <!-- ========== SENSITIVITY ========== -->
-    <div class="card">
-        <div class="card-t"> Sensitivity Analysis</div>
-        <p style="font-size:11px;color:var(--txt3);margin-bottom:12px">Total blended cost by fee rate (columns) and discount rate (rows)</p>
-        <div class="sens-wrap"><div class="sens" id="sens"></div></div>
-    </div>
+        const SCENARIOS = {
+            conservative: ["tokos", "stratos", "absolut"],
+            ambitious: ["tokos", "stratos", "absolut", "81scf", "foitalia"],
+            fullsweep: ["tokos", "stratos", "absolut", "81scf", "foitalia", "secolare", "veneris", "csfo"],
+            vicenza: ["stratos", "absolut", "81scf"],
+            none: [],
+        };
+        const SCEN_LABELS = [
+            { label: "Conservative (Top 3)", k: "conservative" },
+            { label: "Ambitious (Top 5)", k: "ambitious" },
+            { label: "Full Sweep (All 8)", k: "fullsweep" },
+            { label: "Vicenza Cluster", k: "vicenza" },
+            { label: "Clear All", k: "none" },
+        ];
 
-    <!-- Methodology -->
-    <div class="meth">
-        <strong>Methodology:</strong> Derived AuA = Revenue ÷ Fee Rate. P/AUM = AuA × Multiple.
-        DCF = FCFE ÷ (r − g). Blended EV = w<sub>DCF</sub> × DCF + (1−w<sub>DCF</sub>) × P/AUM.
-        Scoring uses weighted average across financial, valuation, strategic fit, responsiveness and convergence dimensions.
-        | Sources: Orbis 2024, Joenväärä &amp; Scherer (2017), Damodaran (2013), Moro Visconti (2020).
-    </div>
+        const BAR_COLORS = [
+            'linear-gradient(90deg,hsl(142,71%,45%),hsl(168,76%,50%))',
+            'linear-gradient(90deg,hsl(217,91%,60%),hsl(217,91%,70%))',
+            'linear-gradient(90deg,hsl(258,90%,66%),hsl(258,90%,76%))',
+            'linear-gradient(90deg,hsl(40,60%,55%),hsl(45,85%,67%))',
+            'linear-gradient(90deg,hsl(0,84%,60%),hsl(0,84%,70%))',
+        ];
+        const FEES = [0.003, 0.004, 0.005, 0.006, 0.007];
+        const DISCS = [0.06, 0.08, 0.10, 0.12];
 
-    <!-- QR Code -->
-    <div class="card qr-card" style="margin-top:16px">
-        <div class="card-t"> Scan to Open Simulator</div>
-        <p style="color:var(--txt2);font-size:13px;margin-bottom:8px">Point a phone camera at the QR code below</p>
-        <div class="qr-bg"><img id="qr-img" src="" alt="QR Code"></div>
-        <p style="font-size:10px;color:var(--txt3);margin-top:4px">URL: <span id="qr-url" style="color:var(--teal)">loading…</span></p>
-    </div>
+        /* ==================================================================
+           STATE
+           ================================================================== */
+        let sel = new Set(SCENARIOS.conservative);
 
-    <div class="ftr">SCF Aggregation Deal Simulator · Giotto Cellino SIM · Management Consulting — University of Bologna</div>
-</div>
+        /* ==================================================================
+           HELPERS
+           ================================================================== */
+        function fmt(v) {
+            if (v == null || isNaN(v)) return '—';
+            if (Math.abs(v) >= 1e9) return '€' + (v / 1e9).toFixed(2) + 'B';
+            if (Math.abs(v) >= 1e6) return '€' + (v / 1e6).toFixed(2) + 'M';
+            if (Math.abs(v) >= 1e3) return '€' + (v / 1e3).toFixed(0) + 'K';
+            return '€' + v.toFixed(0);
+        }
+        function gp() {
+            return {
+                fee: +document.getElementById('s-fee').value / 100,
+                aum: +document.getElementById('s-aum').value / 100,
+                disc: +document.getElementById('s-disc').value / 100,
+                grow: +document.getElementById('s-grow').value / 100,
+                dcfw: +document.getElementById('s-dcfw').value / 100,
+                wF: +document.getElementById('s-wf').value / 100,
+                wV: +document.getElementById('s-wv').value / 100,
+                wS: +document.getElementById('s-ws').value / 100,
+                wR: +document.getElementById('s-wr').value / 100,
+                wC: +document.getElementById('s-wc').value / 100,
+            };
+        }
+        function val(s, p) {
+            const aua = s.rev / p.fee;
+            const pAUM = aua * p.aum;
+            let dcf = 0;
+            if (p.disc > p.grow && s.fcfe > 0) dcf = s.fcfe / (p.disc - p.grow);
+            const bl = p.dcfw * dcf + (1 - p.dcfw) * pAUM;
+            const evEb = s.ebitda > 0 ? bl / s.ebitda : null;
+            return { aua, dcf, pAUM, bl, evEb };
+        }
+        function score(s, p) {
+            const tw = p.wF + p.wV + p.wS + p.wR + p.wC;
+            if (tw === 0) return 0;
+            return (s.sF * p.wF + s.sV * p.wV + s.sS * p.wS + s.sR * p.wR + s.sC * p.wC) / tw;
+        }
 
-<script>
-/* ==================================================================
-   DATA — Edit SCF information here.
-   Each object = one SCF target. Add/remove as needed.
-   ================================================================== */
-const D = [
-  { id:"tokos", name:"Tokos SCF", city:"TO", region:"Turin, Piedmont", tier:1, emp:23, rev:1665292, ebitda:542000, fcfe:407310, cash:354000, cagr:0.45, fo:"Full MFO", dist:36, sF:5, sV:3, sS:5, sR:0, sC:0 },
-  { id:"stratos", name:"Stratos SCF", city:"UD", region:"Udine, Friuli-Venezia Giulia", tier:1, emp:4, rev:468329, ebitda:278000, fcfe:279383, cash:340000, cagr:1.50, fo:"Full FO", dist:154, sF:5, sV:4, sS:5, sR:5, sC:5 },
-  { id:"absolut", name:"A.B. Solute SCF", city:"VI", region:"Vicenza, Veneto", tier:1, emp:5, rev:549593, ebitda:242000, fcfe:183184, cash:418000, cagr:-0.07, fo:"Full FO", dist:40, sF:4, sV:5, sS:3.5, sR:0, sC:0 },
-  { id:"81scf", name:"81 SCF", city:"VI", region:"Vicenza, Veneto", tier:1, emp:4, rev:464888, ebitda:166000, fcfe:136310, cash:38000, cagr:0.18, fo:"Full FO", dist:34, sF:4, sV:4, sS:5, sR:0, sC:0 },
-  { id:"foitalia", name:"Family Office Italia", city:"RN", region:"Rimini, Emilia-Romagna", tier:2, emp:9, rev:384647, ebitda:71000, fcfe:55764, cash:78000, cagr:0.36, fo:"Full FO", dist:236, sF:4, sV:4, sS:3.5, sR:0, sC:0 },
-  { id:"csfo", name:"CS Family Office", city:"LC", region:"Lecco, Lombardy", tier:2, emp:3, rev:304252, ebitda:43000, fcfe:26567, cash:24000, cagr:0.28, fo:"Full FO", dist:228, sF:3, sV:5, sS:3.5, sR:0, sC:0 },
-  { id:"veneris", name:"Veneris FO", city:"TV", region:"Spresiano, Treviso", tier:2, emp:3, rev:204614, ebitda:40000, fcfe:27906, cash:25000, cagr:0.31, fo:"Full FO", dist:72, sF:3, sV:5, sS:4.5, sR:0, sC:0 },
-  { id:"secolare", name:"Secolare SCF", city:"MI", region:"Milan, Lombardy", tier:3, emp:3, rev:593717, ebitda:74000, fcfe:61540, cash:109000, cagr:10.12, fo:"Partial FO", dist:233, sF:3, sV:4, sS:2.5, sR:0, sC:0 },
-  { id:"mpfo", name:"MP Family Office", city:"BO", region:"Bologna, Emilia-Romagna", tier:3, emp:1, rev:259736, ebitda:14000, fcfe:0, cash:9000, cagr:2.07, fo:"Full FO", dist:130, sF:2, sV:5, sS:4, sR:0, sC:0 },
-  { id:"rinascimento", name:"Rinascimento SCF", city:"MI", region:"Milan, Lombardy", tier:3, emp:2, rev:125105, ebitda:26000, fcfe:20447, cash:95000, cagr:null, fo:"Partial FO", dist:243, sF:2, sV:5, sS:2.5, sR:0, sC:0 },
-];
+        /* ==================================================================
+           BUILD UI
+           ================================================================== */
+        function buildQbtns() {
+            const c = document.getElementById('qbtns');
+            SCEN_LABELS.forEach(b => {
+                const btn = document.createElement('button');
+                btn.className = 'qbtn';
+                btn.textContent = b.label;
+                btn.onclick = () => { sel = new Set(SCENARIOS[b.k] || []); render(); };
+                c.appendChild(btn);
+            });
+        }
 
-const SCENARIOS = {
-  conservative:["tokos","stratos","absolut"],
-  ambitious:["tokos","stratos","absolut","81scf","foitalia"],
-  fullsweep:["tokos","stratos","absolut","81scf","foitalia","secolare","veneris","csfo"],
-  vicenza:["stratos","absolut","81scf"],
-  none:[],
-};
-const SCEN_LABELS = [
-  {label:"Conservative (Top 3)", k:"conservative"},
-  {label:"Ambitious (Top 5)", k:"ambitious"},
-  {label:"Full Sweep (All 8)", k:"fullsweep"},
-  {label:"Vicenza Cluster", k:"vicenza"},
-  {label:"Clear All", k:"none"},
-];
-
-const BAR_COLORS = [
-  'linear-gradient(90deg,hsl(142,71%,45%),hsl(168,76%,50%))',
-  'linear-gradient(90deg,hsl(217,91%,60%),hsl(217,91%,70%))',
-  'linear-gradient(90deg,hsl(258,90%,66%),hsl(258,90%,76%))',
-  'linear-gradient(90deg,hsl(40,60%,55%),hsl(45,85%,67%))',
-  'linear-gradient(90deg,hsl(0,84%,60%),hsl(0,84%,70%))',
-];
-const FEES = [0.003,0.004,0.005,0.006,0.007];
-const DISCS = [0.06,0.08,0.10,0.12];
-
-/* ==================================================================
-   STATE
-   ================================================================== */
-let sel = new Set(SCENARIOS.conservative);
-
-/* ==================================================================
-   HELPERS
-   ================================================================== */
-function fmt(v) {
-  if (v==null||isNaN(v)) return '—';
-  if (Math.abs(v)>=1e9) return '€'+(v/1e9).toFixed(2)+'B';
-  if (Math.abs(v)>=1e6) return '€'+(v/1e6).toFixed(2)+'M';
-  if (Math.abs(v)>=1e3) return '€'+(v/1e3).toFixed(0)+'K';
-  return '€'+v.toFixed(0);
-}
-function gp() {
-  return {
-    fee:  +document.getElementById('s-fee').value/100,
-    aum:  +document.getElementById('s-aum').value/100,
-    disc: +document.getElementById('s-disc').value/100,
-    grow: +document.getElementById('s-grow').value/100,
-    dcfw: +document.getElementById('s-dcfw').value/100,
-    wF:   +document.getElementById('s-wf').value/100,
-    wV:   +document.getElementById('s-wv').value/100,
-    wS:   +document.getElementById('s-ws').value/100,
-    wR:   +document.getElementById('s-wr').value/100,
-    wC:   +document.getElementById('s-wc').value/100,
-  };
-}
-function val(s,p) {
-  const aua = s.rev/p.fee;
-  const pAUM = aua*p.aum;
-  let dcf = 0;
-  if (p.disc>p.grow && s.fcfe>0) dcf = s.fcfe/(p.disc-p.grow);
-  const bl = p.dcfw*dcf + (1-p.dcfw)*pAUM;
-  const evEb = s.ebitda>0 ? bl/s.ebitda : null;
-  return {aua,dcf,pAUM,bl,evEb};
-}
-function score(s,p) {
-  const tw = p.wF+p.wV+p.wS+p.wR+p.wC;
-  if (tw===0) return 0;
-  return (s.sF*p.wF + s.sV*p.wV + s.sS*p.wS + s.sR*p.wR + s.sC*p.wC)/tw;
-}
-
-/* ==================================================================
-   BUILD UI
-   ================================================================== */
-function buildQbtns() {
-  const c = document.getElementById('qbtns');
-  SCEN_LABELS.forEach(b => {
-    const btn = document.createElement('button');
-    btn.className = 'qbtn';
-    btn.textContent = b.label;
-    btn.onclick = () => { sel = new Set(SCENARIOS[b.k]||[]); render(); };
-    c.appendChild(btn);
-  });
-}
-
-function renderCards() {
-  const g = document.getElementById('scf-grid');
-  g.innerHTML = '';
-  D.forEach(s => {
-    const isSel = sel.has(s.id);
-    const cagrTxt = s.cagr!==null ? (s.cagr>=0?'+':'')+(s.cagr*100).toFixed(0)+'%' : 'N/A';
-    const margin = ((s.ebitda/s.rev)*100).toFixed(0)+'%';
-    const d = document.createElement('div');
-    d.className = 'scf' + (isSel?' sel':'');
-    d.onclick = () => { if(sel.has(s.id)) sel.delete(s.id); else sel.add(s.id); render(); };
-    d.innerHTML = `
+        function renderCards() {
+            const g = document.getElementById('scf-grid');
+            g.innerHTML = '';
+            D.forEach(s => {
+                const isSel = sel.has(s.id);
+                const cagrTxt = s.cagr !== null ? (s.cagr >= 0 ? '+' : '') + (s.cagr * 100).toFixed(0) + '%' : 'N/A';
+                const margin = ((s.ebitda / s.rev) * 100).toFixed(0) + '%';
+                const d = document.createElement('div');
+                d.className = 'scf' + (isSel ? ' sel' : '');
+                d.onclick = () => { if (sel.has(s.id)) sel.delete(s.id); else sel.add(s.id); render(); };
+                d.innerHTML = `
       <div class="chk">✓</div>
       <span class="tier t${s.tier}">Tier ${s.tier}</span>
       <div class="nm">${s.name}</div>
       <div class="loc">${s.region} · ${s.fo} · ${s.emp} emp</div>
       <div class="metrics">
         <div><div class="ml">Revenue '24</div><div class="mv">${fmt(s.rev)}</div></div>
-        <div><div class="ml">3yr CAGR</div><div class="mv ${s.cagr!==null?(s.cagr>=0?'pos':'neg'):''}">${cagrTxt}</div></div>
+        <div><div class="ml">3yr CAGR</div><div class="mv ${s.cagr !== null ? (s.cagr >= 0 ? 'pos' : 'neg') : ''}">${cagrTxt}</div></div>
         <div><div class="ml">EBITDA Margin</div><div class="mv">${margin}</div></div>
         <div><div class="ml">Net Cash</div><div class="mv">${fmt(s.cash)}</div></div>
       </div>`;
-    g.appendChild(d);
-  });
-}
+                g.appendChild(d);
+            });
+        }
 
-function render() {
-  const p = gp();
+        function render() {
+            const p = gp();
 
-  // Update slider labels
-  document.getElementById('v-fee').textContent = (p.fee*100).toFixed(2)+'%';
-  document.getElementById('v-aum').textContent = (p.aum*100).toFixed(2)+'%';
-  document.getElementById('v-disc').textContent = (p.disc*100).toFixed(1)+'%';
-  document.getElementById('v-grow').textContent = (p.grow*100).toFixed(1)+'%';
-  document.getElementById('v-dcfw').textContent = (p.dcfw*100).toFixed(0)+'%';
-  document.getElementById('v-wf').textContent = (p.wF*100).toFixed(0)+'%';
-  document.getElementById('v-wv').textContent = (p.wV*100).toFixed(0)+'%';
-  document.getElementById('v-ws').textContent = (p.wS*100).toFixed(0)+'%';
-  document.getElementById('v-wr').textContent = (p.wR*100).toFixed(0)+'%';
-  document.getElementById('v-wc').textContent = (p.wC*100).toFixed(0)+'%';
-  const tw = p.wF+p.wV+p.wS+p.wR+p.wC;
-  const twEl = document.getElementById('tw');
-  twEl.textContent = 'Σ = '+(tw*100).toFixed(0)+'%';
-  twEl.style.color = Math.abs(tw-1)<.001 ? 'var(--teal)' : 'var(--red)';
+            // Update slider labels
+            document.getElementById('v-fee').textContent = (p.fee * 100).toFixed(2) + '%';
+            document.getElementById('v-aum').textContent = (p.aum * 100).toFixed(2) + '%';
+            document.getElementById('v-disc').textContent = (p.disc * 100).toFixed(1) + '%';
+            document.getElementById('v-grow').textContent = (p.grow * 100).toFixed(1) + '%';
+            document.getElementById('v-dcfw').textContent = (p.dcfw * 100).toFixed(0) + '%';
+            document.getElementById('v-wf').textContent = (p.wF * 100).toFixed(0) + '%';
+            document.getElementById('v-wv').textContent = (p.wV * 100).toFixed(0) + '%';
+            document.getElementById('v-ws').textContent = (p.wS * 100).toFixed(0) + '%';
+            document.getElementById('v-wr').textContent = (p.wR * 100).toFixed(0) + '%';
+            document.getElementById('v-wc').textContent = (p.wC * 100).toFixed(0) + '%';
+            const tw = p.wF + p.wV + p.wS + p.wR + p.wC;
+            const twEl = document.getElementById('tw');
+            twEl.textContent = 'Σ = ' + (tw * 100).toFixed(0) + '%';
+            twEl.style.color = Math.abs(tw - 1) < .001 ? 'var(--teal)' : 'var(--red)';
 
-  renderCards();
+            renderCards();
 
-  // Compute all valuations + scores
-  const all = D.map(s => ({...s, ...val(s,p), sc:score(s,p), isSel:sel.has(s.id)}))
-    .sort((a,b)=>b.sc-a.sc);
+            // Compute all valuations + scores
+            const all = D.map(s => ({ ...s, ...val(s, p), sc: score(s, p), isSel: sel.has(s.id) }))
+                .sort((a, b) => b.sc - a.sc);
 
-  const selArr = all.filter(s=>s.isSel);
+            const selArr = all.filter(s => s.isSel);
 
-  // Totals
-  const tCost = selArr.reduce((s,v)=>s+v.bl,0);
-  const tAuA  = selArr.reduce((s,v)=>s+v.aua,0);
-  const tRev  = selArr.reduce((s,v)=>s+v.rev,0);
-  const tFCFE = selArr.reduce((s,v)=>s+v.fcfe,0);
-  const tEmp  = selArr.reduce((s,v)=>s+v.emp,0);
-  const tEB   = selArr.reduce((s,v)=>s+v.ebitda,0);
-  const margin = tRev>0 ? tEB/tRev : 0;
-  const cpAuA  = tAuA>0 ? tCost/tAuA*100 : 0;
-  const n = selArr.length;
+            // Totals
+            const tCost = selArr.reduce((s, v) => s + v.bl, 0);
+            const tAuA = selArr.reduce((s, v) => s + v.aua, 0);
+            const tRev = selArr.reduce((s, v) => s + v.rev, 0);
+            const tFCFE = selArr.reduce((s, v) => s + v.fcfe, 0);
+            const tEmp = selArr.reduce((s, v) => s + v.emp, 0);
+            const tEB = selArr.reduce((s, v) => s + v.ebitda, 0);
+            const margin = tRev > 0 ? tEB / tRev : 0;
+            const cpAuA = tAuA > 0 ? tCost / tAuA * 100 : 0;
+            const n = selArr.length;
 
-  function tile(lbl,v,sub,hl) {
-    return `<div class="rt${hl?' hl':''}"><div class="rl">${lbl}</div><div class="rv">${v}</div>${sub?'<div class="rs">'+sub+'</div>':''}</div>`;
-  }
+            function tile(lbl, v, sub, hl) {
+                return `<div class="rt${hl ? ' hl' : ''}"><div class="rl">${lbl}</div><div class="rv">${v}</div>${sub ? '<div class="rs">' + sub + '</div>' : ''}</div>`;
+            }
 
-  document.getElementById('tiles-top').innerHTML =
-    tile('Total Cost', n?fmt(tCost):'—', n?`Blended (${(p.dcfw*100).toFixed(0)}% DCF + ${((1-p.dcfw)*100).toFixed(0)}% P/AUM)`:'', true) +
-    tile('Total AuA', n?fmt(tAuA):'—', n?`at ${(p.fee*100).toFixed(2)}% fee rate`:'') +
-    tile('Combined Revenue', n?fmt(tRev):'—', n?'FY 2024':'') +
-    tile('Total FCFE', n?fmt(tFCFE):'—', n?`Implied yield: ${tCost>0?(tFCFE/tCost*100).toFixed(1):0}%`:'');
+            document.getElementById('tiles-top').innerHTML =
+                tile('Total Cost', n ? fmt(tCost) : '—', n ? `Blended (${(p.dcfw * 100).toFixed(0)}% DCF + ${((1 - p.dcfw) * 100).toFixed(0)}% P/AUM)` : '', true) +
+                tile('Total AuA', n ? fmt(tAuA) : '—', n ? `at ${(p.fee * 100).toFixed(2)}% fee rate` : '') +
+                tile('Combined Revenue', n ? fmt(tRev) : '—', n ? 'FY 2024' : '') +
+                tile('Total FCFE', n ? fmt(tFCFE) : '—', n ? `Implied yield: ${tCost > 0 ? (tFCFE / tCost * 100).toFixed(1) : 0}%` : '');
 
-  document.getElementById('tiles-bot').innerHTML =
-    tile('Avg EBITDA Margin', n?(margin*100).toFixed(1)+'%':'—') +
-    tile('Cost / AuA', n?cpAuA.toFixed(3)+'%':'—') +
-    tile('SCFs Selected', ''+n) +
-    tile('Total Employees', n?''+tEmp:'—');
+            document.getElementById('tiles-bot').innerHTML =
+                tile('Avg EBITDA Margin', n ? (margin * 100).toFixed(1) + '%' : '—') +
+                tile('Cost / AuA', n ? cpAuA.toFixed(3) + '%' : '—') +
+                tile('SCFs Selected', '' + n) +
+                tile('Total Employees', n ? '' + tEmp : '—');
 
-  // Valuation table
-  const tb = document.getElementById('vtbody');
-  tb.innerHTML = all.map(v => {
-    const cls = v.isSel ? ' class="sel-row"' : '';
-    const dot = v.isSel ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);margin-right:6px;vertical-align:middle"></span>` : '';
-    return `<tr${cls}>
+            // Valuation table
+            const tb = document.getElementById('vtbody');
+            tb.innerHTML = all.map(v => {
+                const cls = v.isSel ? ' class="sel-row"' : '';
+                const dot = v.isSel ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);margin-right:6px;vertical-align:middle"></span>` : '';
+                return `<tr${cls}>
       <td>${dot}${v.name} (${v.city})</td>
       <td>${fmt(v.rev)}</td><td>${fmt(v.fcfe)}</td>
       <td>${fmt(v.aua)}</td><td>${fmt(v.dcf)}</td><td>${fmt(v.pAUM)}</td>
       <td style="font-weight:700;color:var(--gold)">${fmt(v.bl)}</td>
-      <td>${v.evEb!==null?v.evEb.toFixed(1)+'x':'—'}</td>
+      <td>${v.evEb !== null ? v.evEb.toFixed(1) + 'x' : '—'}</td>
       <td style="font-weight:700;color:var(--teal)">${v.sc.toFixed(2)}</td>
     </tr>`;
-  }).join('');
+            }).join('');
 
-  // Ranking bars
-  const barsEl = document.getElementById('bars');
-  barsEl.innerHTML = all.map((v,i) => {
-    const pct = (v.sc/5*100).toFixed(1);
-    return `<div class="bar-row">
+            // Ranking bars
+            const barsEl = document.getElementById('bars');
+            barsEl.innerHTML = all.map((v, i) => {
+                const pct = (v.sc / 5 * 100).toFixed(1);
+                return `<div class="bar-row">
       <div class="bar-name">${v.name}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${BAR_COLORS[i%BAR_COLORS.length]}">${v.sc.toFixed(2)} / 5.00</div></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${BAR_COLORS[i % BAR_COLORS.length]}">${v.sc.toFixed(2)} / 5.00</div></div>
     </div>`;
-  }).join('');
+            }).join('');
 
-  // Sensitivity
-  if (n===0) {
-    document.getElementById('sens').innerHTML = '<div style="text-align:center;color:var(--txt3);padding:20px;grid-column:1/-1">Select SCFs to see sensitivity analysis</div>';
-    document.getElementById('sens').style.gridTemplateColumns = '1fr';
-    return;
-  }
-  const sG = document.getElementById('sens');
-  sG.style.gridTemplateColumns = `auto repeat(${FEES.length},1fr)`;
-  let html = '<div class="sh">r \\ fee</div>';
-  FEES.forEach(f => html += `<div class="sh">${(f*100).toFixed(1)}%</div>`);
-  const allVals = DISCS.map(r => FEES.map(f => {
-    let t=0; selArr.forEach(s => t += val(s,{...p,fee:f,disc:r}).bl); return t;
-  }));
-  const flat = allVals.flat();
-  const mn = Math.min(...flat), mx = Math.max(...flat);
-  DISCS.forEach((r,ri) => {
-    html += `<div class="srl">${(r*100).toFixed(0)}%</div>`;
-    FEES.forEach((f,fi) => {
-      const v = allVals[ri][fi];
-      const ratio = mx>mn ? (v-mn)/(mx-mn) : .5;
-      const hue = (1-ratio)*120;
-      const isBase = Math.abs(f-p.fee)<.0001 && Math.abs(r-p.disc)<.005;
-      html += `<div class="sc${isBase?' base':''}" style="background:hsla(${hue},70%,40%,.25)">${fmt(v)}</div>`;
-    });
-  });
-  sG.innerHTML = html;
-}
+            // Sensitivity
+            if (n === 0) {
+                document.getElementById('sens').innerHTML = '<div style="text-align:center;color:var(--txt3);padding:20px;grid-column:1/-1">Select SCFs to see sensitivity analysis</div>';
+                document.getElementById('sens').style.gridTemplateColumns = '1fr';
+                return;
+            }
+            const sG = document.getElementById('sens');
+            sG.style.gridTemplateColumns = `auto repeat(${FEES.length},1fr)`;
+            let html = '<div class="sh">r \\ fee</div>';
+            FEES.forEach(f => html += `<div class="sh">${(f * 100).toFixed(1)}%</div>`);
+            const allVals = DISCS.map(r => FEES.map(f => {
+                let t = 0; selArr.forEach(s => t += val(s, { ...p, fee: f, disc: r }).bl); return t;
+            }));
+            const flat = allVals.flat();
+            const mn = Math.min(...flat), mx = Math.max(...flat);
+            DISCS.forEach((r, ri) => {
+                html += `<div class="srl">${(r * 100).toFixed(0)}%</div>`;
+                FEES.forEach((f, fi) => {
+                    const v = allVals[ri][fi];
+                    const ratio = mx > mn ? (v - mn) / (mx - mn) : .5;
+                    const hue = (1 - ratio) * 120;
+                    const isBase = Math.abs(f - p.fee) < .0001 && Math.abs(r - p.disc) < .005;
+                    html += `<div class="sc${isBase ? ' base' : ''}" style="background:hsla(${hue},70%,40%,.25)">${fmt(v)}</div>`;
+                });
+            });
+            sG.innerHTML = html;
+        }
 
-function up() { render(); }
+        function up() { render(); }
 
-/* ==================================================================
-   INIT
-   ================================================================== */
-buildQbtns();
-render();
+        /* ==================================================================
+           INIT
+           ================================================================== */
+        buildQbtns();
+        render();
 
-// QR code auto-generation
-(function(){
-  const url = window.location.href;
-  document.getElementById('qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=0&data=' + encodeURIComponent(url);
-  document.getElementById('qr-url').textContent = url.length>55 ? url.slice(0,52)+'…' : url;
-})();
-</script>
+        // QR code auto-generation
+        (function () {
+            const url = window.location.href;
+            document.getElementById('qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=0&data=' + encodeURIComponent(url);
+            document.getElementById('qr-url').textContent = url.length > 55 ? url.slice(0, 52) + '…' : url;
+        })();
+    </script>
 </body>
+
 </html>
