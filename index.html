@@ -1,1166 +1,616 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SCF Deal Simulator</title>
-    <meta name="description" content="An Interactive deal simulator for the SCF aggregation, under Giotto Cellino">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* ==========================================================
-       DESIGN TOKENS
-       ========================================================== */
         :root {
-            --bg: #0a0e1a;
-            --bg2: #111827;
-            --card: #1a1f35;
-            --card-hover: #1e2440;
-            --card-sel: #162040;
-            --bdr: #2a3050;
-            --blue: #3b82f6;
-            --teal: #2dd4bf;
-            --gold: #d4a843;
-            --green: #22c55e;
-            --red: #ef4444;
-            --txt: #f1f5f9;
-            --txt2: #94a3b8;
-            --txt3: #64748b;
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --r: 12px;
-        }
-
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            -webkit-text-size-adjust: 100%;
-        }
-
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--txt);
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            right: -30%;
-            width: 80vw;
-            height: 80vw;
-            background: radial-gradient(circle, rgba(59, 130, 246, .04) 0%, transparent 65%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* ==========================================================
-       LAYOUT
-       ========================================================== */
-        .wrap {
-            position: relative;
-            z-index: 1;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 16px 12px 80px;
-        }
-
-        @media(min-width:640px) {
-            .wrap {
-                padding: 32px 24px 80px;
-            }
-        }
-
-        /* Header */
-        .hdr {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        @media(min-width:640px) {
-            .hdr {
-                margin-bottom: 48px;
-            }
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            border-radius: 999px;
-            background: rgba(59, 130, 246, .12);
-            border: 1px solid rgba(59, 130, 246, .25);
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--blue);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
-        }
-
-        .badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: var(--blue);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1
-            }
-
-            50% {
-                opacity: .4
-            }
-        }
-
-        .hdr h1 {
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #3b82f6, #2dd4bf);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -.5px;
-            margin-bottom: 6px;
-        }
-
-        @media(min-width:640px) {
-            .hdr h1 {
-                font-size: 40px;
-            }
-        }
-
-        .hdr p {
-            color: var(--txt2);
-            font-size: 13px;
-        }
-
-        @media(min-width:640px) {
-            .hdr p {
-                font-size: 16px;
-            }
-        }
-
-        /* Cards */
-        .card {
-            background: linear-gradient(145deg, rgba(26, 31, 53, .9), rgba(17, 24, 39, .95));
-            border: 1px solid var(--bdr);
-            border-radius: var(--r);
-            padding: 16px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, .3);
-            backdrop-filter: blur(12px);
-            margin-bottom: 16px;
-            animation: fadeUp .5s ease both;
-        }
-
-        @media(min-width:640px) {
-            .card {
-                padding: 24px;
-                margin-bottom: 24px;
-            }
-        }
-
-        .card-t {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--txt);
-            margin-bottom: 16px;
-        }
-
-        /* Main 2-col grid */
-        .grid2 {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        @media(min-width:1024px) {
-            .grid2 {
-                grid-template-columns: 1fr 1fr;
-                gap: 24px;
-            }
-        }
-
-        /* ==========================================================
-       QUICK-SELECT BUTTONS
-       ========================================================== */
-        .qbtns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .qbtn {
-            padding: 12px 8px;
-            font-size: 12px;
-            font-weight: 600;
-            background: var(--bg2);
-            border: 1px solid var(--bdr);
-            border-radius: 8px;
-            color: var(--txt2);
-            cursor: pointer;
-            text-align: center;
-            font-family: var(--font);
-            transition: all .2s;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-
-        .qbtn:last-child {
-            grid-column: 1/-1;
-        }
-
-        .qbtn:hover,
-        .qbtn:active,
-        .qbtn.active {
-            border-color: var(--blue);
-            color: var(--blue);
-            background: rgba(59, 130, 246, .1);
-        }
-
-        @media(min-width:640px) {
-            .qbtns {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-
-            .qbtn {
-                padding: 10px 18px;
-                font-size: 13px;
-            }
-
-            .qbtn:last-child {
-                grid-column: auto;
-            }
-        }
-
-        /* ==========================================================
-       SCF CARDS GRID
-       ========================================================== */
-        .scf-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        @media(min-width:640px) {
-            .scf-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media(min-width:1400px) {
-            .scf-grid {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-        }
-
-        .scf {
-            position: relative;
-            background: var(--bg2);
-            border: 1.5px solid var(--bdr);
-            border-radius: 10px;
-            padding: 14px;
-            cursor: pointer;
-            user-select: none;
-            transition: all .2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .scf:hover {
-            background: var(--card-hover);
-            border-color: var(--blue);
-        }
-
-        .scf:active {
-            transform: scale(.98);
-        }
-
-        .scf.sel {
-            background: var(--card-sel);
-            border-color: var(--teal);
-            box-shadow: 0 0 20px rgba(45, 212, 191, .12);
-        }
-
-        .scf .chk {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 22px;
-            height: 22px;
-            background: var(--teal);
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--bg);
-        }
-
-        .scf.sel .chk {
-            display: flex;
-        }
-
-        .scf .tier {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            margin-bottom: 6px;
-        }
-
-        .t1 {
-            background: rgba(34, 197, 94, .15);
-            color: var(--green);
-        }
-
-        .t2 {
-            background: rgba(59, 130, 246, .15);
-            color: var(--blue);
-        }
-
-        .t3 {
-            background: rgba(212, 168, 67, .15);
-            color: var(--gold);
-        }
-
-        .scf .nm {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 3px;
-        }
-
-        .scf .loc {
-            font-size: 12px;
-            color: var(--txt3);
-            margin-bottom: 10px;
-        }
-
-        .scf .metrics {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-        }
-
-        .scf .ml {
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .8px;
-            color: var(--txt3);
-        }
-
-        .scf .mv {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--txt2);
-        }
-
-        .pos {
-            color: var(--green) !important;
-        }
-
-        .neg {
-            color: var(--red) !important;
-        }
-
-        /* ==========================================================
-       SLIDERS
-       ========================================================== */
-        .ctrl {
-            margin-bottom: 18px;
-        }
-
-        .ctrl:last-child {
-            margin-bottom: 0;
-        }
-
-        .ctrl-lbl {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .ctrl-lbl span:first-child {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--txt2);
-        }
-
-        .ctrl-v {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--teal);
-            font-variant-numeric: tabular-nums;
-        }
-
-        input[type=range] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            background: var(--bdr);
-            border-radius: 4px;
-            outline: none;
-            cursor: pointer;
-            touch-action: pan-x;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 28px;
-            height: 28px;
-            background: var(--teal);
-            border-radius: 50%;
-            box-shadow: 0 0 12px rgba(45, 212, 191, .4);
-        }
-
-        input[type=range]::-moz-range-thumb {
-            width: 28px;
-            height: 28px;
-            background: var(--teal);
-            border-radius: 50%;
-            box-shadow: 0 0 12px rgba(45, 212, 191, .4);
-            border: none;
-        }
-
-        .wt-total {
-            margin-top: 10px;
-            padding: 8px 12px;
-            background: var(--bg);
-            border-radius: 8px;
-            font-size: 12px;
-            color: var(--txt3);
-        }
-
-        .wt-total strong {
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* ==========================================================
-       RESULT TILES
-       ========================================================== */
-        .rtiles {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        @media(min-width:640px) {
-            .rtiles {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 12px;
-            }
-        }
-
-        .rt {
-            background: var(--bg2);
-            border: 1px solid var(--bdr);
-            border-radius: 10px;
-            padding: 14px 10px;
-            text-align: center;
-        }
-
-        .rt.hl {
-            border-color: var(--gold);
-            box-shadow: 0 0 20px rgba(212, 168, 67, .15);
-        }
-
-        .rt .rl {
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--txt3);
-            margin-bottom: 6px;
-        }
-
-        .rt .rv {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--txt);
-            font-variant-numeric: tabular-nums;
-            letter-spacing: -.3px;
-        }
-
-        @media(min-width:640px) {
-            .rt .rv {
-                font-size: 24px;
-            }
-        }
-
-        .rt .rs {
-            font-size: 10px;
-            color: var(--txt3);
-            margin-top: 3px;
-        }
-
-        /* ==========================================================
-       VALUATION TABLE
-       ========================================================== */
-        .tbl-wrap {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-top: 12px;
-        }
-
-        .tbl {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            font-size: 12px;
-            min-width: 650px;
-        }
-
-        .tbl thead th {
-            position: sticky;
-            top: 0;
-            background: var(--card);
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--txt3);
-            padding: 8px 8px;
-            text-align: right;
-            border-bottom: 1px solid var(--bdr);
-            white-space: nowrap;
-        }
-
-        .tbl thead th:first-child {
-            text-align: left;
-        }
-
-        .tbl tbody td {
-            padding: 8px 8px;
-            text-align: right;
-            color: var(--txt2);
-            border-bottom: 1px solid rgba(42, 48, 80, .4);
-            font-variant-numeric: tabular-nums;
-            white-space: nowrap;
-        }
-
-        .tbl tbody td:first-child {
-            text-align: left;
-            font-weight: 600;
-            color: var(--txt);
-        }
-
-        .tbl tbody tr:hover {
-            background: rgba(59, 130, 246, .05);
-        }
-
-        .tbl tbody tr.sel-row td:first-child {
-            border-left: 3px solid var(--teal);
-        }
-
-        /* ==========================================================
-       BAR CHART
-       ========================================================== */
-        .bars {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .bar-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .bar-name {
-            width: 80px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--txt2);
-            text-align: right;
-            flex-shrink: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        @media(min-width:640px) {
-            .bar-name {
-                width: 140px;
-                font-size: 12px;
-            }
-        }
-
-        .bar-track {
-            flex: 1;
-            height: 28px;
-            background: var(--bg);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .bar-fill {
-            height: 100%;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            padding-left: 8px;
-            font-size: 11px;
-            font-weight: 700;
-            color: #fff;
-            white-space: nowrap;
-            transition: width .5s cubic-bezier(.25, .46, .45, .94);
-            min-width: fit-content;
-        }
-
-        /* ==========================================================
-       SENSITIVITY HEATMAP
-       ========================================================== */
-        .sens-wrap {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .sens {
-            display: grid;
-            gap: 2px;
-            font-size: 11px;
-            min-width: 400px;
-        }
-
-        .sh {
-            font-weight: 700;
-            color: var(--txt3);
-            padding: 8px;
-            text-align: center;
-            font-size: 10px;
-            text-transform: uppercase;
-        }
-
-        .srl {
-            font-weight: 600;
-            color: var(--txt2);
-            padding: 8px 10px;
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-            font-size: 11px;
-        }
-
-        .sc {
-            padding: 6px;
-            text-align: center;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            border-radius: 4px;
-            font-size: 11px;
-        }
-
-        .sc.base {
-            outline: 2px solid var(--teal);
-            font-weight: 800;
-        }
-
-        /* Methodology */
-        .meth {
-            margin-top: 16px;
-            padding: 16px 20px;
-            background: var(--bg2);
-            border-left: 3px solid var(--blue);
-            border-radius: 0 8px 8px 0;
-            font-size: 12px;
-            color: var(--txt2);
-            line-height: 1.7;
-        }
-
-        .meth strong {
-            color: var(--txt);
-        }
-
-        /* QR */
-        .qr-card {
-            text-align: center;
-            padding: 24px 16px;
-        }
-
-        .qr-card img {
-            display: block;
-            width: 160px;
-            height: 160px;
-            margin: 0 auto;
-        }
-
-        .qr-bg {
-            display: inline-block;
-            padding: 14px;
-            background: #fff;
-            border-radius: 14px;
-            margin: 12px 0;
-        }
-
-        /* Footer */
-        .ftr {
-            text-align: center;
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid var(--bdr);
-            font-size: 11px;
-            color: var(--txt3);
-        }
-
-        /* Animations */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(16px)
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0)
-            }
-        }
-
-        .card:nth-child(2) {
-            animation-delay: .08s;
-        }
-
-        .card:nth-child(3) {
-            animation-delay: .16s;
-        }
-
-        .card:nth-child(4) {
-            animation-delay: .24s;
-        }
+            --bg: #0a0e1a; --bg2: #111827; --card: #1a1f35; --card-hover: #1e2440;
+            --card-sel: #162040; --bdr: #2a3050; --blue: #3b82f6; --teal: #2dd4bf;
+            --gold: #d4a843; --green: #22c55e; --red: #ef4444;
+            --txt: #f1f5f9; --txt2: #94a3b8; --txt3: #64748b;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; --r: 12px;
+        }
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        html{-webkit-text-size-adjust:100%}
+        body{font-family:var(--font);background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+        body::before{content:'';position:fixed;top:-50%;right:-30%;width:80vw;height:80vw;background:radial-gradient(circle,rgba(59,130,246,.04) 0%,transparent 65%);pointer-events:none;z-index:0}
+        .wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:16px 12px 80px}
+        @media(min-width:640px){.wrap{padding:32px 24px 80px}}
+        .hdr{text-align:center;margin-bottom:24px}
+        @media(min-width:640px){.hdr{margin-bottom:48px}}
+        .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+        .badge::before{content:'';width:6px;height:6px;background:var(--blue);border-radius:50%;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+        .hdr h1{font-size:24px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#2dd4bf);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.5px;margin-bottom:6px}
+        @media(min-width:640px){.hdr h1{font-size:40px}}
+        .hdr p{color:var(--txt2);font-size:13px}
+        @media(min-width:640px){.hdr p{font-size:16px}}
+        .card{background:linear-gradient(145deg,rgba(26,31,53,.9),rgba(17,24,39,.95));border:1px solid var(--bdr);border-radius:var(--r);padding:16px;box-shadow:0 4px 24px rgba(0,0,0,.3);backdrop-filter:blur(12px);margin-bottom:16px;animation:fadeUp .5s ease both}
+        @media(min-width:640px){.card{padding:24px;margin-bottom:24px}}
+        .card-t{font-size:16px;font-weight:700;color:var(--txt);margin-bottom:16px}
+        .grid2{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px}
+        @media(min-width:1024px){.grid2{grid-template-columns:1fr 1fr;gap:24px}}
+        .qbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+        .qbtn{padding:12px 8px;font-size:12px;font-weight:600;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;color:var(--txt2);cursor:pointer;text-align:center;font-family:var(--font);transition:all .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+        .qbtn:last-child{grid-column:1/-1}
+        .qbtn:hover,.qbtn:active,.qbtn.active{border-color:var(--blue);color:var(--blue);background:rgba(59,130,246,.1)}
+        @media(min-width:640px){.qbtns{display:flex;flex-wrap:wrap;gap:8px}.qbtn{padding:10px 18px;font-size:13px}.qbtn:last-child{grid-column:auto}}
+        .scf-grid{display:grid;grid-template-columns:1fr;gap:10px}
+        @media(min-width:640px){.scf-grid{grid-template-columns:1fr 1fr}}
+        @media(min-width:1400px){.scf-grid{grid-template-columns:1fr 1fr 1fr}}
+        .scf{position:relative;background:var(--bg2);border:1.5px solid var(--bdr);border-radius:10px;padding:14px;cursor:pointer;user-select:none;transition:all .2s;-webkit-tap-highlight-color:transparent}
+        .scf:hover{background:var(--card-hover);border-color:var(--blue)}
+        .scf:active{transform:scale(.98)}
+        .scf.sel{background:var(--card-sel);border-color:var(--teal);box-shadow:0 0 20px rgba(45,212,191,.12)}
+        .scf .chk{position:absolute;top:10px;right:10px;width:22px;height:22px;background:var(--teal);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--bg)}
+        .scf.sel .chk{display:flex}
+        .scf .tier{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+        .t1{background:rgba(34,197,94,.15);color:var(--green)}
+        .t2{background:rgba(59,130,246,.15);color:var(--blue)}
+        .t3{background:rgba(212,168,67,.15);color:var(--gold)}
+        .scf .nm{font-size:15px;font-weight:700;margin-bottom:3px}
+        .scf .loc{font-size:12px;color:var(--txt3);margin-bottom:10px}
+        .scf .metrics{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+        .scf .ml{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3)}
+        .scf .mv{font-size:14px;font-weight:600;color:var(--txt2)}
+        .pos{color:var(--green)!important} .neg{color:var(--red)!important}
+        .ctrl{margin-bottom:18px}.ctrl:last-child{margin-bottom:0}
+        .ctrl-lbl{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+        .ctrl-lbl span:first-child{font-size:13px;font-weight:500;color:var(--txt2)}
+        .ctrl-v{font-size:14px;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums}
+        input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:var(--bdr);border-radius:4px;outline:none;cursor:pointer;touch-action:pan-x}
+        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;background:var(--teal);border-radius:50%;box-shadow:0 0 12px rgba(45,212,191,.4)}
+        input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--teal);border-radius:50%;box-shadow:0 0 12px rgba(45,212,191,.4);border:none}
+        .locked-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg);border-radius:8px;border-left:3px solid var(--blue);margin-bottom:6px}
+        .locked-row .lbl{font-size:13px;font-weight:500;color:var(--txt2)}
+        .locked-row .val{font-size:14px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums}
+        .locked-row .lock-icon{font-size:11px;color:var(--txt3);margin-left:6px}
+        .scoring-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:var(--bg);border-radius:8px;margin-bottom:4px}
+        .scoring-row .lbl{font-size:12px;font-weight:500;color:var(--txt2)}
+        .scoring-row .val{font-size:13px;font-weight:700;color:var(--teal)}
+        .section-note{font-size:11px;color:var(--txt3);margin-bottom:12px;padding:8px 12px;background:rgba(59,130,246,.06);border-radius:6px;line-height:1.5}
+        .rtiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+        @media(min-width:640px){.rtiles{grid-template-columns:repeat(4,1fr);gap:12px}}
+        .rt{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:14px 10px;text-align:center}
+        .rt.hl{border-color:var(--gold);box-shadow:0 0 20px rgba(212,168,67,.15)}
+        .rt .rl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);margin-bottom:6px}
+        .rt .rv{font-size:18px;font-weight:800;color:var(--txt);font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+        @media(min-width:640px){.rt .rv{font-size:24px}}
+        .rt .rs{font-size:10px;color:var(--txt3);margin-top:3px}
+        .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:12px}
+        .tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:900px}
+        .tbl thead th{position:sticky;top:0;background:var(--card);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);padding:8px 6px;text-align:right;border-bottom:1px solid var(--bdr);white-space:nowrap}
+        .tbl thead th:first-child{text-align:left}
+        .tbl tbody td{padding:7px 6px;text-align:right;color:var(--txt2);border-bottom:1px solid rgba(42,48,80,.4);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:11px}
+        .tbl tbody td:first-child{text-align:left;font-weight:600;color:var(--txt)}
+        .tbl tbody tr:hover{background:rgba(59,130,246,.05)}
+        .tbl tbody tr.sel-row td:first-child{border-left:3px solid var(--teal)}
+        .bars{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+        .bar-row{display:flex;align-items:center;gap:8px}
+        .bar-name{width:80px;font-size:11px;font-weight:600;color:var(--txt2);text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        @media(min-width:640px){.bar-name{width:140px;font-size:12px}}
+        .bar-track{flex:1;height:28px;background:var(--bg);border-radius:6px;overflow:hidden}
+        .bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;transition:width .5s cubic-bezier(.25,.46,.45,.94);min-width:fit-content}
+        .sens-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+        .sens{display:grid;gap:2px;font-size:11px;min-width:400px}
+        .sh{font-weight:700;color:var(--txt3);padding:8px;text-align:center;font-size:10px;text-transform:uppercase}
+        .srl{font-weight:600;color:var(--txt2);padding:8px 10px;display:flex;align-items:center;white-space:nowrap;font-size:11px}
+        .sc{padding:6px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums;border-radius:4px;font-size:11px}
+        .sc.base{outline:2px solid var(--teal);font-weight:800}
+        .meth{margin-top:16px;padding:16px 20px;background:var(--bg2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;font-size:12px;color:var(--txt2);line-height:1.7}
+        .meth strong{color:var(--txt)}
+        .ftr{text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid var(--bdr);font-size:11px;color:var(--txt3)}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        .card:nth-child(2){animation-delay:.08s}.card:nth-child(3){animation-delay:.16s}.card:nth-child(4){animation-delay:.24s}
+        .ke-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;background:rgba(59,130,246,.15);color:var(--blue);margin-left:4px;vertical-align:middle}
+        .tier-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-left:6px}
+        .tier-tag.t1s{background:rgba(34,197,94,.2);color:var(--green)}
+        .tier-tag.t2s{background:rgba(59,130,246,.2);color:var(--blue)}
+        .tier-tag.t3s{background:rgba(212,168,67,.2);color:var(--gold)}
+        /* Football field */
+        .ff-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+        .ff-name{width:100px;font-size:11px;font-weight:600;color:var(--txt2);text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        @media(min-width:640px){.ff-name{width:140px;font-size:12px}}
+        .ff-track{flex:1;height:20px;position:relative;background:var(--bg);border-radius:4px;overflow:visible}
+        .ff-bar{position:absolute;height:100%;border-radius:4px;opacity:.5}
+        .ff-dot{position:absolute;width:10px;height:10px;border-radius:50%;top:50%;transform:translate(-50%,-50%);z-index:2;border:2px solid var(--bg)}
     </style>
 </head>
-
 <body>
     <div class="wrap">
-
-        <!-- HEADER -->
         <div class="hdr">
             <div class="badge">Live Model</div>
             <h1>SCF Deal Simulator</h1>
-            <p>A SCF Aggregation Interactive Model for Giotto Cellino SIM </p>
+            <p>Multi-Method Valuation Model, SCF Aggregation for Giotto Cellino SIM</p>
         </div>
 
         <div class="grid2">
-            <!-- ========== LEFT: SCF SELECTION ========== -->
             <div class="card">
-                <div class="card-t"> Select Target SCFs</div>
+                <div class="card-t">Select Target SCFs</div>
                 <div class="qbtns" id="qbtns"></div>
                 <div class="scf-grid" id="scf-grid"></div>
             </div>
 
-            <!-- ========== RIGHT: PARAMETERS ========== -->
             <div style="display:flex;flex-direction:column;gap:16px">
-                <!-- Valuation Assumptions -->
+                <!-- Valuation Framework -->
                 <div class="card" style="margin-bottom:0">
-                    <div class="card-t"> Valuation Parameters</div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>Implied Fee Rate</span><span class="ctrl-v" id="v-fee">0.50%</span>
+                    <div class="card-t">Multi-Method Valuation Framework</div>
+                    <div class="section-note">
+                        <strong>Three-method blend</strong> — P/AUM (J&amp;S) anchored on Stratos calibration (AuA = €450M confirmed), peer relative using self-referencing comp set (n=10), and normalized DCF with median FCFE to smooth lumpy earnings.
+                    </div>
+                    <div class="locked-row"><span class="lbl">① P/AUM (J&amp;S Model)</span><span><span class="val">50%</span><span class="lock-icon"></span></span></div>
+                    <div class="locked-row"><span class="lbl">② Peer Relative (EV/Rev &amp; EV/EBITDA)</span><span><span class="val">30%</span><span class="lock-icon"></span></span></div>
+                    <div class="locked-row"><span class="lbl">③ Normalized Gordon DCF</span><span><span class="val">20%</span><span class="lock-icon"></span></span></div>
+                    <div style="margin-top:14px">
+                        <div class="ctrl">
+                            <div class="ctrl-lbl"><span>Perpetual Growth g (Italy GDP proxy)</span><span class="ctrl-v" id="v-grow">2.5%</span></div>
+                            <input type="range" id="s-grow" min="0" max="5" step="0.25" value="2.5" oninput="up()">
                         </div>
-                        <input type="range" id="s-fee" min="0.05" max="1" step="0.01" value="0.5" oninput="up()">
-                    </div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>AuM Acquisition Multiple</span><span class="ctrl-v"
-                                id="v-aum">1.50%</span></div>
-                        <input type="range" id="s-aum" min="0.5" max="4" step="0.05" value="1.5" oninput="up()">
-                    </div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>Cost of Equity (r)</span><span class="ctrl-v"
-                                id="v-disc">10.0%</span></div>
-                        <input type="range" id="s-disc" min="4" max="18" step="0.5" value="10" oninput="up()">
-                    </div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>Terminal Growth (g)</span><span class="ctrl-v"
-                                id="v-grow">3.0%</span></div>
-                        <input type="range" id="s-grow" min="0" max="5" step="0.5" value="3" oninput="up()">
-                    </div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>DCF Weight in Blend</span><span class="ctrl-v"
-                                id="v-dcfw">50%</span></div>
-                        <input type="range" id="s-dcfw" min="0" max="100" step="5" value="50" oninput="up()">
-                        <div
-                            style="display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);margin-top:4px">
-                            <span>0% (all P/AUM)</span><span>100% (all DCF)</span>
+                        <div class="ctrl">
+                            <div class="ctrl-lbl"><span>Ke Adjustment (± all tiers)</span><span class="ctrl-v" id="v-ke-adj">0.0%</span></div>
+                            <input type="range" id="s-ke-adj" min="-3" max="3" step="0.5" value="0" oninput="up()">
+                            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);margin-top:4px"><span>−3%</span><span>+3%</span></div>
                         </div>
+                    </div>
+                    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                        <div class="scoring-row"><span class="lbl">Peer Med. EV/Rev</span><span class="val" id="v-evrev">2.41x</span></div>
+                        <div class="scoring-row"><span class="lbl">Peer Med. EV/EBITDA</span><span class="val" id="v-evebitda">10.26x</span></div>
                     </div>
                 </div>
 
-                <!-- Scoring Weights -->
+                <!-- Scoring Framework -->
                 <div class="card" style="margin-bottom:0">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-                        <div class="card-t" style="margin-bottom:0"> Scoring Weights</div>
-                        <span id="tw"
-                            style="font-size:13px;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums">Σ
-                            = 100%</span>
+                    <div class="card-t">Integrated Acquisition Scorecard</div>
+                    <div class="section-note">
+                        <strong>6-dimension scoring</strong> — Includes <em>Confidence</em> dimension (15%) measuring valuation convergence across methods. Higher confidence = tighter spread between min/max method prices.
                     </div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>Financial</span><span class="ctrl-v" id="v-wf">30%</span></div>
-                        <input type="range" id="s-wf" min="0" max="50" step="5" value="30" oninput="up()">
-                    </div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>Valuation</span><span class="ctrl-v" id="v-wv">30%</span></div>
-                        <input type="range" id="s-wv" min="0" max="50" step="5" value="30" oninput="up()">
-                    </div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>Strategic Fit</span><span class="ctrl-v" id="v-ws">30%</span></div>
-                        <input type="range" id="s-ws" min="0" max="50" step="5" value="30" oninput="up()">
-                    </div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>Responsiveness</span><span class="ctrl-v" id="v-wr">5%</span></div>
-                        <input type="range" id="s-wr" min="0" max="50" step="5" value="5" oninput="up()">
-                    </div>
-                    <div class="ctrl">
-                        <div class="ctrl-lbl"><span>Convergence</span><span class="ctrl-v" id="v-wc">5%</span></div>
-                        <input type="range" id="s-wc" min="0" max="50" step="5" value="5" oninput="up()">
-                    </div>
+                    <div class="scoring-row"><span class="lbl">Financial Attractiveness</span><span class="val">25% </span></div>
+                    <div class="scoring-row"><span class="lbl">Valuation</span><span class="val">25% </span></div>
+                    <div class="scoring-row"><span class="lbl">Strategic &amp; Regional Fit</span><span class="val">25% </span></div>
+                    <div class="scoring-row"><span class="lbl">Responsiveness</span><span class="val">5% </span></div>
+                    <div class="scoring-row"><span class="lbl">Convergence Willingness</span><span class="val">5% </span></div>
+                    <div class="scoring-row" style="border-left:2px solid var(--gold)"><span class="lbl">Confidence <span style="font-size:10px;color:var(--gold)">(NEW)</span></span><span class="val">15% </span></div>
+                </div>
+
+                <!-- Ke Table -->
+                <div class="card" style="margin-bottom:0">
+                    <div class="card-t">Cost of Equity by Size Tier</div>
+                    <div id="ke-table"></div>
                 </div>
             </div>
         </div>
 
-        <!-- ========== DEAL DASHBOARD ========== -->
+        <!-- DEAL DASHBOARD -->
         <div class="card">
-            <div class="card-t"> Deal Dashboard</div>
+            <div class="card-t">Deal Dashboard</div>
             <div class="rtiles" id="tiles-top"></div>
             <div class="rtiles" id="tiles-bot"></div>
 
-            <!-- Valuation Table -->
-            <div class="card-t" style="margin-top:20px"> Detailed Valuation Breakdown</div>
+            <div class="card-t" style="margin-top:20px">Enhanced Valuation Breakdown — ① P/AUM (50%) + ② Peer Relative (30%) + ③ Norm. DCF (20%)</div>
             <div class="tbl-wrap">
                 <table class="tbl">
-                    <thead>
-                        <tr>
-                            <th>SCF</th>
-                            <th>Revenue '24</th>
-                            <th>FCFE</th>
-                            <th>Derived AuA</th>
-                            <th>DCF Price</th>
-                            <th>P/AUM Price</th>
-                            <th>Blended EV</th>
-                            <th>EV/EBITDA</th>
-                            <th>Score</th>
-                        </tr>
-                    </thead>
+                    <thead><tr>
+                        <th>SCF</th><th>Rev '24</th><th>EBITDA</th><th>Norm. FCFE</th>
+                        <th>AuA</th><th>Ke</th>
+                        <th>① P/AUM</th><th>② EV/Rev</th><th>② EV/EBITDA</th><th>② Rel. Avg</th>
+                        <th>③ DCF</th><th>Blended EV</th><th>Impl. EV/EBITDA</th><th>Score</th><th>Tier</th>
+                    </tr></thead>
                     <tbody id="vtbody"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ========== RANKING ========== -->
+        <!-- FOOTBALL FIELD -->
         <div class="card">
-            <div class="card-t"> Weighted Score Ranking</div>
+            <div class="card-t">Football Field — Valuation Range by Method</div>
+            <div style="display:flex;gap:12px;margin-bottom:12px;font-size:10px;flex-wrap:wrap">
+                <span style="color:var(--teal)">● P/AUM</span>
+                <span style="color:var(--blue)">● EV/Rev</span>
+                <span style="color:var(--gold)">● EV/EBITDA</span>
+                <span style="color:#a78bfa">● Norm. DCF</span>
+                <span style="color:var(--red)">◆ Blended</span>
+            </div>
+            <div id="football"></div>
+        </div>
+
+        <!-- RANKING -->
+        <div class="card">
+            <div class="card-t">Weighted Score Ranking (6-Dimension)</div>
             <div class="bars" id="bars"></div>
         </div>
 
-        <!-- ========== SENSITIVITY ========== -->
+        <!-- SENSITIVITY -->
         <div class="card">
-            <div class="card-t"> Sensitivity Analysis</div>
-            <p style="font-size:11px;color:var(--txt3);margin-bottom:12px">Total blended cost by fee rate (columns) and
-                discount rate (rows)</p>
-            <div class="sens-wrap">
-                <div class="sens" id="sens"></div>
-            </div>
+            <div class="card-t">Sensitivity — Stratos P/AUM: Fee Rate (f) vs. FCFE Margin (q)</div>
+            <p style="font-size:11px;color:var(--txt3);margin-bottom:12px">P/AUM price at R=8%, AuA=€450M. Base case highlighted.</p>
+            <div class="sens-wrap"><div class="sens" id="sens-paum"></div></div>
         </div>
 
-        <!-- Methodology -->
+        <div class="card">
+            <div class="card-t">Sensitivity — Stratos Norm. DCF: Ke vs. Growth (g)</div>
+            <p style="font-size:11px;color:var(--txt3);margin-bottom:12px">Normalized FCFE = €89,373 (median). Base case highlighted.</p>
+            <div class="sens-wrap"><div class="sens" id="sens-dcf"></div></div>
+        </div>
+
         <div class="meth">
-            <strong>Methodology:</strong> Derived AuA = Revenue ÷ Fee Rate. P/AUM = AuA × Multiple.
-            DCF = FCFE ÷ (r − g). Blended EV = w<sub>DCF</sub> × DCF + (1−w<sub>DCF</sub>) × P/AUM.
-            Scoring uses weighted average across financial, valuation, strategic fit, responsiveness and convergence
-            dimensions.
-            | Sources: Orbis 2024, Joenväärä &amp; Scherer (2017), Damodaran (2013), Moro Visconti (2020).
+            <strong>Methodology — Multi-Method Valuation Model:</strong><br>
+            <strong>① P/AUM (50%):</strong> P = f × q × (1/R) × AuA — Joenväärä &amp; Scherer (2017). Calibrated via Stratos (AuA = €450M, 5 prof. = €90M/prof). Fee rate f = Rev/AuA, margin q = FCFE/Rev.<br>
+            <strong>② Peer Relative (30%):</strong> Average of (Rev × med. EV/Rev) and (EBITDA × med. EV/EBITDA). Self-referencing comp set (n=10) — Bigelli &amp; Manuzzi (2019).<br>
+            <strong>③ Normalized DCF (20%):</strong> P = Norm. FCFE / (R − g). Norm. FCFE = median of available years to smooth lumpy earnings — Damodaran (2013).<br>
+            <strong>Blended EV</strong> = 0.50 × P/AUM + 0.30 × Rel. Avg + 0.20 × DCF.<br>
+            <strong>Scoring:</strong> Financial 25%, Valuation 25%, Strategic Fit 25%, Responsiveness 5%, Convergence 5%, Confidence 15%.<br>
+            <strong>Ke:</strong> 6% (large AuA), 8% (mid), 10% (small/new). g = 2.5% (Italy nominal GDP — ECB Projections 2025).<br>
+            <strong>Sources:</strong> Orbis 2024, Joenväärä &amp; Scherer (2017) JFMPM, Damodaran (2013), Moro Visconti (2020), Bigelli &amp; Manuzzi (2019), Huberman (2006), ECB (2025).
         </div>
 
-        <!-- QR Code -->
-        <div class="card qr-card" style="margin-top:16px">
-            <div class="card-t"> Scan to Open Simulator</div>
-            <p style="color:var(--txt2);font-size:13px;margin-bottom:8px">Point a phone camera at the QR code below</p>
-            <div class="qr-bg"><img id="qr-img" src="" alt="QR Code"></div>
-            <p style="font-size:10px;color:var(--txt3);margin-top:4px">URL: <span id="qr-url"
-                    style="color:var(--teal)">loading…</span></p>
-        </div>
-
-        <div class="ftr">SCF Aggregation Deal Simulator · Giotto Cellino SIM · Management Consulting (Tuttors: Laurea Amadesi & Mario Saccone); University of
-            Bologna</div>
+        <div class="ftr">SCF Aggregation Deal Simulator · Giotto Cellino SIM · Management Consulting (Tutors: Laurea Amadesi &amp; Mario Saccone) · University of Bologna</div>
     </div>
 
-    <script>
-        /* ==================================================================
-           DATA — Edit SCF information here.
-           Each object = one SCF target. Add/remove as needed.
-           ================================================================== */
-        const D = [
-            { id: "tokos", name: "Tokos SCF", city: "TO", region: "Turin, Piedmont", tier: 1, emp: 23, rev: 1665292, ebitda: 542000, fcfe: 407310, cash: 354000, cagr: 0.45, fo: "Full MFO", dist: 36, sF: 5, sV: 3, sS: 5, sR: 0, sC: 0 },
-            { id: "stratos", name: "Stratos SCF", city: "UD", region: "Udine, Friuli-Venezia Giulia", tier: 1, emp: 4, rev: 468329, ebitda: 278000, fcfe: 279383, cash: 340000, cagr: 1.50, fo: "Full FO", dist: 154, sF: 5, sV: 4, sS: 5, sR: 5, sC: 5 },
-            { id: "absolut", name: "A.B. Solute SCF", city: "VI", region: "Vicenza, Veneto", tier: 1, emp: 5, rev: 549593, ebitda: 242000, fcfe: 183184, cash: 418000, cagr: -0.07, fo: "Full FO", dist: 40, sF: 4, sV: 5, sS: 3.5, sR: 0, sC: 0 },
-            { id: "81scf", name: "81 SCF", city: "VI", region: "Vicenza, Veneto", tier: 1, emp: 4, rev: 464888, ebitda: 166000, fcfe: 136310, cash: 38000, cagr: 0.18, fo: "Full FO", dist: 34, sF: 4, sV: 4, sS: 5, sR: 0, sC: 0 },
-            { id: "foitalia", name: "Family Office Italia", city: "RN", region: "Rimini, Emilia-Romagna", tier: 2, emp: 9, rev: 384647, ebitda: 71000, fcfe: 55764, cash: 78000, cagr: 0.36, fo: "Full FO", dist: 236, sF: 4, sV: 4, sS: 3.5, sR: 0, sC: 0 },
-            { id: "csfo", name: "CS Family Office", city: "LC", region: "Lecco, Lombardy", tier: 2, emp: 3, rev: 304252, ebitda: 43000, fcfe: 26567, cash: 24000, cagr: 0.28, fo: "Full FO", dist: 228, sF: 3, sV: 5, sS: 3.5, sR: 0, sC: 0 },
-            { id: "veneris", name: "Veneris FO", city: "TV", region: "Spresiano, Treviso", tier: 2, emp: 3, rev: 204614, ebitda: 40000, fcfe: 27906, cash: 25000, cagr: 0.31, fo: "Full FO", dist: 72, sF: 3, sV: 5, sS: 4.5, sR: 0, sC: 0 },
-            { id: "secolare", name: "Secolare SCF", city: "MI", region: "Milan, Lombardy", tier: 3, emp: 3, rev: 593717, ebitda: 74000, fcfe: 61540, cash: 109000, cagr: 10.12, fo: "Partial FO", dist: 233, sF: 3, sV: 4, sS: 2.5, sR: 0, sC: 0 },
-            { id: "mpfo", name: "MP Family Office", city: "BO", region: "Bologna, Emilia-Romagna", tier: 3, emp: 1, rev: 259736, ebitda: 14000, fcfe: 0, cash: 9000, cagr: 2.07, fo: "Full FO", dist: 130, sF: 2, sV: 5, sS: 4, sR: 0, sC: 0 },
-            { id: "rinascimento", name: "Rinascimento SCF", city: "MI", region: "Milan, Lombardy", tier: 3, emp: 2, rev: 125105, ebitda: 26000, fcfe: 20447, cash: 95000, cagr: null, fo: "Partial FO", dist: 243, sF: 2, sV: 5, sS: 2.5, sR: 0, sC: 0 },
-        ];
+<script>
+/* ==================================================================
+   DATA — Grounded from "Final Valuation" sheet of Management_consulting.xlsx
+   All financials: Orbis 2024. AuA: Stratos calibration (90M/prof).
+   Norm. FCFE: median of available years (smoothed).
+   Scores: Integrated Acquisition Scorecard (row 93+).
+   ================================================================== */
+const D = [
+    { id:"tokos",name:"Tokos SCF",city:"TO",region:"Turin, Piedmont",tier:1,emp:23,
+      rev:1665000,ebitda:542000,fcfe2024:484995,normFCFE:17549,cash:355352,
+      aua:2070000000,ke:0.06,fo:"Full MFO",dist:36,
+      sF:5,sV:2,sS:5,sR:0,sC:0,sConf:1,action:"Contact for initial meeting" },
+    { id:"stratos",name:"Stratos SCF",city:"UD",region:"Udine, Friuli-Venezia Giulia",tier:1,emp:5,
+      rev:468000,ebitda:278000,fcfe2024:279383,normFCFE:89373,cash:339764,
+      aua:450000000,ke:0.08,fo:"Full FO",dist:154,
+      sF:5,sV:3,sS:5,sR:5,sC:5,sConf:3,action:"PRIORITY: Initiate LOI" },
+    { id:"absolut",name:"A.B. Solute SCF",city:"VI",region:"Vicenza, Veneto",tier:1,emp:5,
+      rev:550000,ebitda:242000,fcfe2024:183184,normFCFE:202593,cash:418947,
+      aua:450000000,ke:0.08,fo:"Full FO",dist:40,
+      sF:4,sV:2,sS:3.5,sR:0,sC:0,sConf:3,action:"Contact for initial meeting" },
+    { id:"81scf",name:"81 SCF",city:"VI",region:"Vicenza, Veneto",tier:1,emp:4,
+      rev:465000,ebitda:166000,fcfe2024:136310,normFCFE:42873,cash:39805,
+      aua:360000000,ke:0.08,fo:"Full FO",dist:34,
+      sF:4,sV:4,sS:5,sR:0,sC:0,sConf:5,action:"Contact for initial meeting" },
+    { id:"foitalia",name:"Family Office Italia",city:"RN",region:"Rimini, Emilia-Romagna",tier:2,emp:9,
+      rev:385000,ebitda:71000,fcfe2024:55764,normFCFE:6118,cash:78122,
+      aua:810000000,ke:0.06,fo:"Full FO",dist:236,
+      sF:4,sV:2,sS:3.5,sR:0,sC:0,sConf:2,action:"Contact; assess Rimini synergies" },
+    { id:"csfo",name:"CS Family Office",city:"LC",region:"Lecco, Lombardy",tier:2,emp:3,
+      rev:304000,ebitda:43000,fcfe2024:26567,normFCFE:11482,cash:23854,
+      aua:270000000,ke:0.08,fo:"Full FO",dist:228,
+      sF:3,sV:4,sS:3.5,sR:0,sC:0,sConf:1,action:"Hold; not in AssoSCF" },
+    { id:"veneris",name:"Veneris FO",city:"TV",region:"Spresiano, Treviso",tier:2,emp:3,
+      rev:205000,ebitda:40000,fcfe2024:27906,normFCFE:32280,cash:38562,
+      aua:270000000,ke:0.08,fo:"Full FO",dist:72,
+      sF:3,sV:2,sS:4.5,sR:0,sC:0,sConf:5,action:"Monitor; contact if cluster strategy" },
+    { id:"secolare",name:"Secolare SCF",city:"MI",region:"Milan, Lombardy",tier:3,emp:3,
+      rev:594000,ebitda:74000,fcfe2024:61540,normFCFE:25503,cash:112831,
+      aua:270000000,ke:0.08,fo:"Partial FO",dist:233,
+      sF:3,sV:2,sS:2.5,sR:0,sC:0,sConf:1,action:"Watch list; revisit in 12 months" },
+    { id:"mpfo",name:"MP Family Office",city:"BO",region:"Bologna, Emilia-Romagna",tier:3,emp:1,
+      rev:260000,ebitda:14000,fcfe2024:-2341,normFCFE:5071,cash:8618,
+      aua:90000000,ke:0.10,fo:"Full FO",dist:130,
+      sF:2,sV:4,sS:4,sR:0,sC:0,sConf:1,action:"No action — too early stage" },
+    { id:"rinascimento",name:"Rinascimento SCF",city:"MI",region:"Milan, Lombardy",tier:3,emp:2,
+      rev:125000,ebitda:26000,fcfe2024:20447,normFCFE:9671,cash:94739,
+      aua:180000000,ke:0.10,fo:"Partial FO",dist:243,
+      sF:2,sV:4,sS:2.5,sR:0,sC:0,sConf:4,action:"No action — too small & partial" },
+];
 
-        const SCENARIOS = {
-            conservative: ["tokos", "stratos", "absolut"],
-            ambitious: ["tokos", "stratos", "absolut", "81scf", "foitalia"],
-            fullsweep: ["tokos", "stratos", "absolut", "81scf", "foitalia", "secolare", "veneris", "csfo"],
-            vicenza: ["stratos", "absolut", "81scf"],
-            none: [],
-        };
-        const SCEN_LABELS = [
-            { label: "Conservative (Top 3)", k: "conservative" },
-            { label: "Ambitious (Top 5)", k: "ambitious" },
-            { label: "Full Sweep (All 8)", k: "fullsweep" },
-            { label: "Vicenza Cluster", k: "vicenza" },
-            { label: "Clear All", k: "none" },
-        ];
+const SCENARIOS = {
+    conservative:["tokos","stratos","absolut"],
+    ambitious:["tokos","stratos","absolut","81scf","foitalia"],
+    vicenza:["absolut","81scf","veneris"],
+    stratVicenza:["stratos","absolut","81scf"],
+    none:[]
+};
+const SCEN_LABELS = [
+    {label:"Conservative (Top 3)",k:"conservative"},
+    {label:"Ambitious (Top 5)",k:"ambitious"},
+    {label:"Vicenza Cluster",k:"vicenza"},
+    {label:"Stratos + Vicenza",k:"stratVicenza"},
+    {label:"Clear All",k:"none"},
+];
 
-        const BAR_COLORS = [
-            'linear-gradient(90deg,hsl(142,71%,45%),hsl(168,76%,50%))',
-            'linear-gradient(90deg,hsl(217,91%,60%),hsl(217,91%,70%))',
-            'linear-gradient(90deg,hsl(258,90%,66%),hsl(258,90%,76%))',
-            'linear-gradient(90deg,hsl(40,60%,55%),hsl(45,85%,67%))',
-            'linear-gradient(90deg,hsl(0,84%,60%),hsl(0,84%,70%))',
-        ];
-        const FEES = [0.003, 0.004, 0.005, 0.006, 0.007];
-        const DISCS = [0.06, 0.08, 0.10, 0.12];
+const BAR_COLORS = [
+    'linear-gradient(90deg,hsl(142,71%,45%),hsl(168,76%,50%))',
+    'linear-gradient(90deg,hsl(217,91%,60%),hsl(217,91%,70%))',
+    'linear-gradient(90deg,hsl(258,90%,66%),hsl(258,90%,76%))',
+    'linear-gradient(90deg,hsl(40,60%,55%),hsl(45,85%,67%))',
+    'linear-gradient(90deg,hsl(0,84%,60%),hsl(0,84%,70%))',
+];
 
-        /* ==================================================================
-           STATE
-           ================================================================== */
-        let sel = new Set(SCENARIOS.conservative);
+// Locked weights
+const W_PAUM = 0.50, W_REL = 0.30, W_DCF = 0.20;
+const W_F=0.25, W_V=0.25, W_S=0.25, W_R=0.05, W_Cv=0.05, W_Conf=0.15;
 
-        /* ==================================================================
-           HELPERS
-           ================================================================== */
-        function fmt(v) {
-            if (v == null || isNaN(v)) return '—';
-            if (Math.abs(v) >= 1e9) return '€' + (v / 1e9).toFixed(2) + 'B';
-            if (Math.abs(v) >= 1e6) return '€' + (v / 1e6).toFixed(2) + 'M';
-            if (Math.abs(v) >= 1e3) return '€' + (v / 1e3).toFixed(0) + 'K';
-            return '€' + v.toFixed(0);
+// Peer medians (self-referencing, computed from the 10-SCF universe)
+let PEER_EV_REV, PEER_EV_EBITDA;
+
+let sel = new Set(SCENARIOS.conservative);
+
+/* ==================================================================
+   HELPERS
+   ================================================================== */
+function fmt(v) {
+    if (v==null||isNaN(v)) return '—';
+    if (Math.abs(v)>=1e9) return '€'+(v/1e9).toFixed(2)+'B';
+    if (Math.abs(v)>=1e6) return '€'+(v/1e6).toFixed(2)+'M';
+    if (Math.abs(v)>=1e3) return '€'+(v/1e3).toFixed(0)+'K';
+    return '€'+v.toFixed(0);
+}
+
+function getParams() {
+    return {
+        g:    +document.getElementById('s-grow').value / 100,
+        keAdj:+document.getElementById('s-ke-adj').value / 100,
+    };
+}
+
+function median(arr) {
+    const s = [...arr].sort((a,b)=>a-b);
+    const m = Math.floor(s.length/2);
+    return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+}
+
+// Compute peer multiples from P/AUM anchor prices
+function computePeerMultiples(g, keAdj) {
+    const evRevs = [], evEbitdas = [];
+    D.forEach(s => {
+        const R = Math.max(s.ke + keAdj, 0.01);
+        // P/AUM price for this SCF
+        let pAUM = 0;
+        if (R > 0 && s.fcfe2024 > 0) pAUM = s.fcfe2024 / R;
+        if (pAUM > 0) {
+            if (s.rev > 0) evRevs.push(pAUM / s.rev);
+            if (s.ebitda > 0) evEbitdas.push(pAUM / s.ebitda);
         }
-        function gp() {
-            return {
-                fee: +document.getElementById('s-fee').value / 100,
-                aum: +document.getElementById('s-aum').value / 100,
-                disc: +document.getElementById('s-disc').value / 100,
-                grow: +document.getElementById('s-grow').value / 100,
-                dcfw: +document.getElementById('s-dcfw').value / 100,
-                wF: +document.getElementById('s-wf').value / 100,
-                wV: +document.getElementById('s-wv').value / 100,
-                wS: +document.getElementById('s-ws').value / 100,
-                wR: +document.getElementById('s-wr').value / 100,
-                wC: +document.getElementById('s-wc').value / 100,
-            };
-        }
-        function val(s, p) {
-            const aua = s.rev / p.fee;
-            const pAUM = aua * p.aum;
-            let dcf = 0;
-            if (p.disc > p.grow && s.fcfe > 0) dcf = s.fcfe / (p.disc - p.grow);
-            const bl = p.dcfw * dcf + (1 - p.dcfw) * pAUM;
-            const evEb = s.ebitda > 0 ? bl / s.ebitda : null;
-            return { aua, dcf, pAUM, bl, evEb };
-        }
-        function score(s, p) {
-            const tw = p.wF + p.wV + p.wS + p.wR + p.wC;
-            if (tw === 0) return 0;
-            return (s.sF * p.wF + s.sV * p.wV + s.sS * p.wS + s.sR * p.wR + s.sC * p.wC) / tw;
-        }
+    });
+    PEER_EV_REV = median(evRevs);
+    PEER_EV_EBITDA = median(evEbitdas);
+}
 
-        /* ==================================================================
-           BUILD UI
-           ================================================================== */
-        function buildQbtns() {
-            const c = document.getElementById('qbtns');
-            SCEN_LABELS.forEach(b => {
-                const btn = document.createElement('button');
-                btn.className = 'qbtn';
-                btn.textContent = b.label;
-                btn.onclick = () => { sel = new Set(SCENARIOS[b.k] || []); render(); };
-                c.appendChild(btn);
-            });
-        }
+function valuate(s, g, keAdj) {
+    const R = Math.max(s.ke + keAdj, 0.01);
+    const f = s.aua > 0 ? s.rev / s.aua : 0;
+    const q = s.rev > 0 ? s.fcfe2024 / s.rev : 0;
 
-        function renderCards() {
-            const g = document.getElementById('scf-grid');
-            g.innerHTML = '';
-            D.forEach(s => {
-                const isSel = sel.has(s.id);
-                const cagrTxt = s.cagr !== null ? (s.cagr >= 0 ? '+' : '') + (s.cagr * 100).toFixed(0) + '%' : 'N/A';
-                const margin = ((s.ebitda / s.rev) * 100).toFixed(0) + '%';
-                const d = document.createElement('div');
-                d.className = 'scf' + (isSel ? ' sel' : '');
-                d.onclick = () => { if (sel.has(s.id)) sel.delete(s.id); else sel.add(s.id); render(); };
-                d.innerHTML = `
-      <div class="chk">✓</div>
-      <span class="tier t${s.tier}">Tier ${s.tier}</span>
-      <div class="nm">${s.name}</div>
-      <div class="loc">${s.region} · ${s.fo} · ${s.emp} emp</div>
-      <div class="metrics">
-        <div><div class="ml">Revenue '24</div><div class="mv">${fmt(s.rev)}</div></div>
-        <div><div class="ml">3yr CAGR</div><div class="mv ${s.cagr !== null ? (s.cagr >= 0 ? 'pos' : 'neg') : ''}">${cagrTxt}</div></div>
-        <div><div class="ml">EBITDA Margin</div><div class="mv">${margin}</div></div>
-        <div><div class="ml">Net Cash</div><div class="mv">${fmt(s.cash)}</div></div>
-      </div>`;
-                g.appendChild(d);
-            });
-        }
+    // ① P/AUM = f × q × (1/R) × AuA = FCFE / R
+    let pAUM = 0;
+    if (R > 0 && s.fcfe2024 > 0) pAUM = s.fcfe2024 / R;
 
-        function render() {
-            const p = gp();
+    // ② Peer Relative
+    const evRev = s.rev * PEER_EV_REV;
+    const evEbitda = s.ebitda * PEER_EV_EBITDA;
+    const relAvg = (evRev + evEbitda) / 2;
 
-            // Update slider labels
-            document.getElementById('v-fee').textContent = (p.fee * 100).toFixed(2) + '%';
-            document.getElementById('v-aum').textContent = (p.aum * 100).toFixed(2) + '%';
-            document.getElementById('v-disc').textContent = (p.disc * 100).toFixed(1) + '%';
-            document.getElementById('v-grow').textContent = (p.grow * 100).toFixed(1) + '%';
-            document.getElementById('v-dcfw').textContent = (p.dcfw * 100).toFixed(0) + '%';
-            document.getElementById('v-wf').textContent = (p.wF * 100).toFixed(0) + '%';
-            document.getElementById('v-wv').textContent = (p.wV * 100).toFixed(0) + '%';
-            document.getElementById('v-ws').textContent = (p.wS * 100).toFixed(0) + '%';
-            document.getElementById('v-wr').textContent = (p.wR * 100).toFixed(0) + '%';
-            document.getElementById('v-wc').textContent = (p.wC * 100).toFixed(0) + '%';
-            const tw = p.wF + p.wV + p.wS + p.wR + p.wC;
-            const twEl = document.getElementById('tw');
-            twEl.textContent = 'Σ = ' + (tw * 100).toFixed(0) + '%';
-            twEl.style.color = Math.abs(tw - 1) < .001 ? 'var(--teal)' : 'var(--red)';
+    // ③ Normalized DCF = Norm. FCFE / (R - g)
+    let dcf = 0;
+    if (R > g && s.normFCFE > 0) dcf = s.normFCFE / (R - g);
 
-            renderCards();
+    // Blended = 50% P/AUM + 30% Rel + 20% DCF
+    const bl = W_PAUM * pAUM + W_REL * relAvg + W_DCF * dcf;
+    const implEvEbitda = s.ebitda > 0 ? bl / s.ebitda : null;
+    const implEvRev = s.rev > 0 ? bl / s.rev : null;
 
-            // Compute all valuations + scores
-            const all = D.map(s => ({ ...s, ...val(s, p), sc: score(s, p), isSel: sel.has(s.id) }))
-                .sort((a, b) => b.sc - a.sc);
+    // Min/Max for football field
+    const methods = [pAUM, evRev, evEbitda, dcf].filter(v => v > 0);
+    const mn = methods.length ? Math.min(...methods) : 0;
+    const mx = methods.length ? Math.max(...methods) : 0;
 
-            const selArr = all.filter(s => s.isSel);
+    return { f, q, R, pAUM, evRev, evEbitda, relAvg, dcf, bl, implEvEbitda, implEvRev, mn, mx };
+}
 
-            // Totals
-            const tCost = selArr.reduce((s, v) => s + v.bl, 0);
-            const tAuA = selArr.reduce((s, v) => s + v.aua, 0);
-            const tRev = selArr.reduce((s, v) => s + v.rev, 0);
-            const tFCFE = selArr.reduce((s, v) => s + v.fcfe, 0);
-            const tEmp = selArr.reduce((s, v) => s + v.emp, 0);
-            const tEB = selArr.reduce((s, v) => s + v.ebitda, 0);
-            const margin = tRev > 0 ? tEB / tRev : 0;
-            const cpAuA = tAuA > 0 ? tCost / tAuA * 100 : 0;
-            const n = selArr.length;
+function score(s) {
+    return s.sF*W_F + s.sV*W_V + s.sS*W_S + s.sR*W_R + s.sC*W_Cv + s.sConf*W_Conf;
+}
 
-            function tile(lbl, v, sub, hl) {
-                return `<div class="rt${hl ? ' hl' : ''}"><div class="rl">${lbl}</div><div class="rv">${v}</div>${sub ? '<div class="rs">' + sub + '</div>' : ''}</div>`;
-            }
+function tierLabel(sc) {
+    if (sc >= 3.50) return '<span class="tier-tag t1s">Tier 1 ★</span>';
+    if (sc >= 2.50) return '<span class="tier-tag t2s">Tier 2</span>';
+    return '<span class="tier-tag t3s">Tier 3</span>';
+}
 
-            document.getElementById('tiles-top').innerHTML =
-                tile('Total Cost', n ? fmt(tCost) : '—', n ? `Blended (${(p.dcfw * 100).toFixed(0)}% DCF + ${((1 - p.dcfw) * 100).toFixed(0)}% P/AUM)` : '', true) +
-                tile('Total AuA', n ? fmt(tAuA) : '—', n ? `at ${(p.fee * 100).toFixed(2)}% fee rate` : '') +
-                tile('Combined Revenue', n ? fmt(tRev) : '—', n ? 'FY 2024' : '') +
-                tile('Total FCFE', n ? fmt(tFCFE) : '—', n ? `Implied yield: ${tCost > 0 ? (tFCFE / tCost * 100).toFixed(1) : 0}%` : '');
+/* ==================================================================
+   BUILD UI
+   ================================================================== */
+function buildQbtns() {
+    const c = document.getElementById('qbtns');
+    SCEN_LABELS.forEach(b => {
+        const btn = document.createElement('button');
+        btn.className = 'qbtn';
+        btn.textContent = b.label;
+        btn.onclick = () => { sel = new Set(SCENARIOS[b.k]||[]); render(); };
+        c.appendChild(btn);
+    });
+}
 
-            document.getElementById('tiles-bot').innerHTML =
-                tile('Avg EBITDA Margin', n ? (margin * 100).toFixed(1) + '%' : '—') +
-                tile('Cost / AuA', n ? cpAuA.toFixed(3) + '%' : '—') +
-                tile('SCFs Selected', '' + n) +
-                tile('Total Employees', n ? '' + tEmp : '—');
+function buildKeTable(keAdj) {
+    const el = document.getElementById('ke-table');
+    const tiers = [
+        { label:'Large (Tokos, FO Italia)', base:0.06 },
+        { label:'Mid-tier (Stratos, A.B., 81, CS, Veneris, Secolare)', base:0.08 },
+        { label:'Small / New (MP, Rinascimento)', base:0.10 },
+    ];
+    el.innerHTML = tiers.map(t => {
+        const adj = t.base + keAdj;
+        return `<div class="scoring-row"><span class="lbl">${t.label}</span>
+        <span class="val">${(adj*100).toFixed(1)}%${keAdj!==0?` <span style="font-size:10px;color:${keAdj>0?'var(--red)':'var(--green)'}">(${keAdj>0?'+':''}${(keAdj*100).toFixed(1)}%)</span>`:''}</span></div>`;
+    }).join('');
+}
 
-            // Valuation table
-            const tb = document.getElementById('vtbody');
-            tb.innerHTML = all.map(v => {
-                const cls = v.isSel ? ' class="sel-row"' : '';
-                const dot = v.isSel ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);margin-right:6px;vertical-align:middle"></span>` : '';
-                return `<tr${cls}>
-      <td>${dot}${v.name} (${v.city})</td>
-      <td>${fmt(v.rev)}</td><td>${fmt(v.fcfe)}</td>
-      <td>${fmt(v.aua)}</td><td>${fmt(v.dcf)}</td><td>${fmt(v.pAUM)}</td>
-      <td style="font-weight:700;color:var(--gold)">${fmt(v.bl)}</td>
-      <td>${v.evEb !== null ? v.evEb.toFixed(1) + 'x' : '—'}</td>
-      <td style="font-weight:700;color:var(--teal)">${v.sc.toFixed(2)}</td>
-    </tr>`;
-            }).join('');
+function renderCards() {
+    const g = document.getElementById('scf-grid');
+    g.innerHTML = '';
+    D.forEach(s => {
+        const isSel = sel.has(s.id);
+        const margin = ((s.ebitda/s.rev)*100).toFixed(0)+'%';
+        const feeRate = s.aua>0 ? ((s.rev/s.aua)*100).toFixed(3)+'%' : '—';
+        const sc = score(s);
+        const d = document.createElement('div');
+        d.className = 'scf'+(isSel?' sel':'');
+        d.onclick = () => { if(sel.has(s.id))sel.delete(s.id);else sel.add(s.id);render(); };
+        d.innerHTML = `
+<div class="chk">✓</div>
+<span class="tier t${s.tier}">Tier ${s.tier}</span>
+<div class="nm">${s.name} <span class="ke-badge">Ke ${(s.ke*100).toFixed(0)}%</span></div>
+<div class="loc">${s.region} · ${s.fo} · ${s.emp} prof</div>
+<div class="metrics">
+  <div><div class="ml">Revenue '24</div><div class="mv">${fmt(s.rev)}</div></div>
+  <div><div class="ml">Derived AuA</div><div class="mv">${fmt(s.aua)}</div></div>
+  <div><div class="ml">EBITDA Margin</div><div class="mv">${margin}</div></div>
+  <div><div class="ml">Score</div><div class="mv">${sc.toFixed(2)}</div></div>
+</div>`;
+        g.appendChild(d);
+    });
+}
 
-            // Ranking bars
-            const barsEl = document.getElementById('bars');
-            barsEl.innerHTML = all.map((v, i) => {
-                const pct = (v.sc / 5 * 100).toFixed(1);
-                return `<div class="bar-row">
-      <div class="bar-name">${v.name}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${BAR_COLORS[i % BAR_COLORS.length]}">${v.sc.toFixed(2)} / 5.00</div></div>
-    </div>`;
-            }).join('');
+function render() {
+    const p = getParams();
+    document.getElementById('v-grow').textContent = (p.g*100).toFixed(1)+'%';
+    document.getElementById('v-ke-adj').textContent = (p.keAdj>=0?'+':'')+(p.keAdj*100).toFixed(1)+'%';
 
-            // Sensitivity
-            if (n === 0) {
-                document.getElementById('sens').innerHTML = '<div style="text-align:center;color:var(--txt3);padding:20px;grid-column:1/-1">Select SCFs to see sensitivity analysis</div>';
-                document.getElementById('sens').style.gridTemplateColumns = '1fr';
-                return;
-            }
-            const sG = document.getElementById('sens');
-            sG.style.gridTemplateColumns = `auto repeat(${FEES.length},1fr)`;
-            let html = '<div class="sh">r \\ fee</div>';
-            FEES.forEach(f => html += `<div class="sh">${(f * 100).toFixed(1)}%</div>`);
-            const allVals = DISCS.map(r => FEES.map(f => {
-                let t = 0; selArr.forEach(s => t += val(s, { ...p, fee: f, disc: r }).bl); return t;
-            }));
-            const flat = allVals.flat();
-            const mn = Math.min(...flat), mx = Math.max(...flat);
-            DISCS.forEach((r, ri) => {
-                html += `<div class="srl">${(r * 100).toFixed(0)}%</div>`;
-                FEES.forEach((f, fi) => {
-                    const v = allVals[ri][fi];
-                    const ratio = mx > mn ? (v - mn) / (mx - mn) : .5;
-                    const hue = (1 - ratio) * 120;
-                    const isBase = Math.abs(f - p.fee) < .0001 && Math.abs(r - p.disc) < .005;
-                    html += `<div class="sc${isBase ? ' base' : ''}" style="background:hsla(${hue},70%,40%,.25)">${fmt(v)}</div>`;
-                });
-            });
-            sG.innerHTML = html;
-        }
+    // Compute peer multiples first
+    computePeerMultiples(p.g, p.keAdj);
+    document.getElementById('v-evrev').textContent = PEER_EV_REV.toFixed(2)+'x';
+    document.getElementById('v-evebitda').textContent = PEER_EV_EBITDA.toFixed(2)+'x';
 
-        function up() { render(); }
+    buildKeTable(p.keAdj);
+    renderCards();
 
-        /* ==================================================================
-           INIT
-           ================================================================== */
-        buildQbtns();
-        render();
+    const all = D.map(s => {
+        const v = valuate(s, p.g, p.keAdj);
+        return { ...s, ...v, sc:score(s), isSel:sel.has(s.id) };
+    }).sort((a,b)=>b.sc-a.sc);
 
-        // QR code auto-generation
-        (function () {
-            const url = window.location.href;
-            document.getElementById('qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=0&data=' + encodeURIComponent(url);
-            document.getElementById('qr-url').textContent = url.length > 55 ? url.slice(0, 52) + '…' : url;
-        })();
-    </script>
+    const selArr = all.filter(s=>s.isSel);
+    const n = selArr.length;
+    const tCost = selArr.reduce((s,v)=>s+v.bl,0);
+    const tAuA  = selArr.reduce((s,v)=>s+v.aua,0);
+    const tRev  = selArr.reduce((s,v)=>s+v.rev,0);
+    const tFCFE = selArr.reduce((s,v)=>s+v.fcfe2024,0);
+    const tEmp  = selArr.reduce((s,v)=>s+v.emp,0);
+    const tEB   = selArr.reduce((s,v)=>s+v.ebitda,0);
+    const margin = tRev>0?tEB/tRev:0;
+    const implEvRev = tRev>0?tCost/tRev:0;
+
+    function tile(lbl,v,sub,hl) {
+        return `<div class="rt${hl?' hl':''}"><div class="rl">${lbl}</div><div class="rv">${v}</div>${sub?'<div class="rs">'+sub+'</div>':''}</div>`;
+    }
+
+    document.getElementById('tiles-top').innerHTML =
+        tile('Total Blended Cost',n?fmt(tCost):'—',n?'50% P/AUM + 30% Rel + 20% DCF':'',true)+
+        tile('Combined AuA',n?fmt(tAuA):'—',n?`${n} SCFs · €90M/prof`:'') +
+        tile('Combined Revenue',n?fmt(tRev):'—',n?'FY 2024 (Orbis)':'') +
+        tile('Combined FCFE',n?fmt(tFCFE):'—',n?`Yield: ${tCost>0?(tFCFE/tCost*100).toFixed(1):0}%`:'');
+
+    document.getElementById('tiles-bot').innerHTML =
+        tile('Wtd EBITDA Margin',n?(margin*100).toFixed(1)+'%':'—')+
+        tile('Implied EV/Rev',n?implEvRev.toFixed(2)+'x':'—')+
+        tile('SCFs Selected',''+n)+
+        tile('Total Professionals',n?''+tEmp:'—');
+
+    // Valuation table
+    const tb = document.getElementById('vtbody');
+    tb.innerHTML = all.map(v => {
+        const cls = v.isSel?' class="sel-row"':'';
+        const dot = v.isSel?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);margin-right:6px;vertical-align:middle"></span>':'';
+        return `<tr${cls}>
+<td>${dot}${v.name} (${v.city})</td>
+<td>${fmt(v.rev)}</td><td>${fmt(v.ebitda)}</td><td>${fmt(v.normFCFE)}</td>
+<td>${fmt(v.aua)}</td><td>${(v.R*100).toFixed(1)}%</td>
+<td>${fmt(v.pAUM)}</td><td>${fmt(v.evRev)}</td><td>${fmt(v.evEbitda)}</td>
+<td style="color:var(--blue);font-weight:600">${fmt(v.relAvg)}</td>
+<td>${fmt(v.dcf)}</td>
+<td style="font-weight:700;color:var(--gold)">${fmt(v.bl)}</td>
+<td>${v.implEvEbitda!==null?v.implEvEbitda.toFixed(1)+'x':'—'}</td>
+<td style="font-weight:700;color:var(--teal)">${v.sc.toFixed(2)}</td>
+<td>${tierLabel(v.sc)}</td>
+</tr>`;
+    }).join('');
+
+    // Football field
+    const ffEl = document.getElementById('football');
+    const allMax = Math.max(...all.map(v=>v.mx));
+    ffEl.innerHTML = all.map(v => {
+        if (allMax <= 0) return '';
+        const pcts = val => Math.max(0, Math.min(100, val / allMax * 100));
+        const colors = { pAUM:'var(--teal)', evRev:'var(--blue)', evEbitda:'var(--gold)', dcf:'#a78bfa' };
+        const minPct = pcts(v.mn), maxPct = pcts(v.mx), blPct = pcts(v.bl);
+        let dots = '';
+        [{k:'pAUM',c:colors.pAUM},{k:'evRev',c:colors.evRev},{k:'evEbitda',c:colors.evEbitda},{k:'dcf',c:colors.dcf}].forEach(m => {
+            if (v[m.k] > 0) dots += `<div class="ff-dot" style="left:${pcts(v[m.k])}%;background:${m.c}"></div>`;
+        });
+        return `<div class="ff-row">
+<div class="ff-name">${v.name}</div>
+<div class="ff-track">
+  <div class="ff-bar" style="left:${minPct}%;width:${maxPct-minPct}%;background:linear-gradient(90deg,rgba(59,130,246,.3),rgba(45,212,191,.3))"></div>
+  ${dots}
+  <div class="ff-dot" style="left:${blPct}%;background:var(--red);width:12px;height:12px;border-radius:2px;transform:translate(-50%,-50%) rotate(45deg)" title="Blended: ${fmt(v.bl)}"></div>
+</div></div>`;
+    }).join('');
+
+    // Ranking bars
+    document.getElementById('bars').innerHTML = all.map((v,i) => {
+        const pct = (v.sc/5*100).toFixed(1);
+        return `<div class="bar-row">
+<div class="bar-name">${v.name}</div>
+<div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${BAR_COLORS[i%BAR_COLORS.length]}">${v.sc.toFixed(2)} / 5.00 ${tierLabel(v.sc)}</div></div>
+</div>`;
+    }).join('');
+
+    // Sensitivity 1: Stratos P/AUM — f vs q
+    const fees = [0.0008,0.0009,0.00104,0.0012,0.0014];
+    const qs = [0.35,0.45,0.50,0.597,0.65,0.75];
+    const sG1 = document.getElementById('sens-paum');
+    sG1.style.gridTemplateColumns = `auto repeat(${qs.length},1fr)`;
+    let h1 = '<div class="sh">f \\ q</div>';
+    qs.forEach(q => h1 += `<div class="sh">${(q*100).toFixed(1)}%</div>`);
+    const allV1 = fees.map(f => qs.map(q => f * q * (1/0.08) * 450000000));
+    const flat1 = allV1.flat();
+    const mn1=Math.min(...flat1),mx1=Math.max(...flat1);
+    fees.forEach((f,ri) => {
+        h1 += `<div class="srl">${(f*100).toFixed(2)}%</div>`;
+        qs.forEach((q,fi) => {
+            const v = allV1[ri][fi];
+            const ratio = mx1>mn1?(v-mn1)/(mx1-mn1):.5;
+            const hue = (1-ratio)*120;
+            const isBase = Math.abs(f-0.00104)<0.00001 && Math.abs(q-0.597)<0.001;
+            h1 += `<div class="sc${isBase?' base':''}" style="background:hsla(${hue},70%,40%,.25)">${fmt(v)}</div>`;
+        });
+    });
+    sG1.innerHTML = h1;
+
+    // Sensitivity 2: Stratos Norm DCF — R vs g
+    const rs = [0.06,0.07,0.08,0.09,0.10];
+    const gs = [0.015,0.02,0.025,0.03];
+    const normFCFE_stratos = 89373;
+    const sG2 = document.getElementById('sens-dcf');
+    sG2.style.gridTemplateColumns = `auto repeat(${gs.length},1fr)`;
+    let h2 = '<div class="sh">Ke \\ g</div>';
+    gs.forEach(gv => h2 += `<div class="sh">${(gv*100).toFixed(1)}%</div>`);
+    const allV2 = rs.map(r => gs.map(gv => r>gv ? normFCFE_stratos/(r-gv) : Infinity));
+    const flat2 = allV2.flat().filter(v=>isFinite(v));
+    const mn2=Math.min(...flat2),mx2=Math.max(...flat2);
+    rs.forEach((r,ri) => {
+        h2 += `<div class="srl">${(r*100).toFixed(0)}%</div>`;
+        gs.forEach((gv,fi) => {
+            const v = allV2[ri][fi];
+            const ratio = mx2>mn2?(v-mn2)/(mx2-mn2):.5;
+            const hue = (1-ratio)*120;
+            const isBase = Math.abs(r-0.08)<0.001 && Math.abs(gv-0.025)<0.001;
+            h2 += `<div class="sc${isBase?' base':''}" style="background:hsla(${hue},70%,40%,.25)">${isFinite(v)?fmt(v):'∞'}</div>`;
+        });
+    });
+    sG2.innerHTML = h2;
+}
+
+function up() { render(); }
+buildQbtns();
+render();
+</script>
 </body>
-
 </html>
